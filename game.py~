@@ -11,8 +11,6 @@ from collidables import *
 pix_per_mm = .3 
 # Clock frequency in hertz
 clock_freq = 120
-#Fifo directory
-FIFO = "/tmp/fifo"
 
 class Puck(Circle):
 
