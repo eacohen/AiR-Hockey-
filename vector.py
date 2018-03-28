@@ -29,7 +29,7 @@ class Vector:
 
     # Return the magnitude 
     def mag(self):
-        return math.sqrt(self.mag_sq)
+        return math.sqrt(self.mag_sq())
 
     # Return the angle
     def ang(self):
@@ -47,6 +47,20 @@ class Vector:
 
     # Support scalar multiplication in both directions
     __rmul__ = __mul__
+
+    def __truediv__(self, scaler):
+        return Vector(self.x / scaler, self.y / scaler)
+
+    # Return the unit vector (magnitude of one) corresponding to this vector
+    def normalize(self):
+
+        mag = self.mag()
+
+        if mag == 0:
+            # Zero length vectors have no normal
+            return None
+
+        return self / mag
 
     def flip_horz(self):
         return Vector(-self.x, self.y)
