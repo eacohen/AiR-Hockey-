@@ -1,5 +1,6 @@
 import pygame
 from vector import Vector
+from math import pi
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
@@ -71,7 +72,7 @@ class Game:
                                                mm_to_pix(arena_length)))
 
         self.arena = Arena(arena_width, arena_length)
-        self.puck = Puck(Vector(50, 50), Vector(3, 3), 30)
+        self.puck = Puck(Vector(60, 60), Vector.polar(40, pi/6), 30)
         self.clock = pygame.time.Clock()
 
 def mm_to_pix(mm):
