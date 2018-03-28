@@ -67,3 +67,23 @@ class Vector:
 
     def flip_vert(self):
         return Vector(self.x, -self.y)
+
+    # Flip a vector across a "flip axis" vector so that the vector's value in 
+    # the axis of the flip is negated but in the axis perpendicular to the flip
+    # stays the same
+    # This can model a puck reflecting off a wall, where the normal vector to the wall
+    # is the flip axis
+    # Diagram:
+    #
+    # \ <- self
+    #  \
+    #   *
+    # --------  <- direction of flip axis
+    #   /
+    #  /
+    # * <- result
+    #
+    def flip(self, flip_axis):
+        normal = flip_axis.normalize()
+        return self - 2 * (self * normal) * normal
+
