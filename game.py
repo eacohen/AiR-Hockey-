@@ -47,10 +47,11 @@ class Puck:
                 time_left = 0
 
             else:
-
                 # There is a collision
-                (new_loc, new_vel) = collidables[min_pos].collide(self)
-                time_left = time_left - coll_times[min_pos]
+                coll_time = coll_times[min_pos]
+                new_loc = self.location + (coll_time * self.velocity)
+                new_vel = collidables[min_pos].collide_velocity(self)
+                time_left = time_left - coll_time 
 
             self.location = new_loc
             self.velocity = new_vel

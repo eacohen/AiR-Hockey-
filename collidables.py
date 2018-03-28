@@ -3,9 +3,8 @@
 # Each coll_time() function returns how many seconds it'll take before
 # the puck collides with the object
 
-# Each collide() function returns the tuple (new_loc, new_vel),
-# Where new_loc is the location of the puck after the collision and
-# new_vel is its velocity
+# Each collide_velocity() returns the velocity of the puck after the next 
+# collision with the object
 
 # Left facing infinite vertical wall
 class Wall_Vert_Left_Inf:
@@ -21,13 +20,9 @@ class Wall_Vert_Left_Inf:
 
         return (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
 
-    def collide(self, puck):
+    def collide_velocity(self, puck):
         
-        coll_time = self.coll_time(puck)
-        new_loc = puck.location + puck.velocity * coll_time
-        new_vel = puck.velocity.flip_horz()
-
-        return (new_loc, new_vel)
+        return puck.velocity.flip_horz()
 
 # Right facing infinite vertical wall
 class Wall_Vert_Right_Inf:
@@ -43,13 +38,9 @@ class Wall_Vert_Right_Inf:
 
         return ((puck.location.x - puck.radius) - self.x) / -puck.velocity.x
 
-    def collide(self, puck):
+    def collide_velocity(self, puck):
         
-        coll_time = self.coll_time(puck)
-        new_loc = puck.location + puck.velocity * coll_time
-        new_vel = puck.velocity.flip_horz()
-
-        return (new_loc, new_vel)
+        return puck.velocity.flip_horz()
 
 # Up facing infinite horizontal wall
 class Wall_Horz_Up_Inf:
@@ -65,15 +56,11 @@ class Wall_Horz_Up_Inf:
 
         return (self.y - (puck.location.y + puck.radius)) / puck.velocity.y
 
-    def collide(self, puck):
+    def collide_velocity(self, puck):
         
-        coll_time = self.coll_time(puck)
-        new_loc = puck.location + puck.velocity * coll_time
-        new_vel = puck.velocity.flip_vert()
+        return puck.velocity.flip_vert()
 
-        return (new_loc, new_vel)
-
-# Down facing infinite horizontial wall
+# Down facing infinite horizontal wall
 class Wall_Horz_Down_Inf:
 
     def __init__(self, y):
@@ -87,10 +74,30 @@ class Wall_Horz_Down_Inf:
 
         return ((puck.location.y - puck.radius) - self.y) / -puck.velocity.y
 
-    def collide(self, puck):
+    def collide_velocity(self, puck):
         
-        coll_time = self.coll_time(puck)
-        new_loc = puck.location + puck.velocity * coll_time
-        new_vel = puck.velocity.flip_vert()
+        return puck.velocity.flip_vert()
 
-        return (new_loc, new_vel)
+class Circle:
+
+    def __init__(self, location, radius):
+        self.location = location 
+        self.radius = radius
+
+    # Note: the following webpage was helpful when working out the math of 
+    # this function. Reading it may help when following this algorithm
+    #   https://math.stackexchange.com/questions/913350/
+    #   how-to-find-the-intersection-point-of-two-moving-circles
+    def coll_time(self, puck):
+
+        # First find the closest distance that will occur between 
+        # the circle centers
+        v_diff = self.location - puck.location 
+        # Angle between puck path and intial vector to circle
+        path_ang = abs(puck.velocity.ang() - v_diff.ang())
+        # Simple trig application:
+        d_min = v_diff.mag() * math.sin(path_ang) 
+
+        if self.radius + puck.radius < d_min:
+            # There will be no collision 
+            return None
