@@ -1,7 +1,8 @@
 import pygame
-from vector import Vector
 import util
+from vector import Vector
 from math import pi
+from collidables import *
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
@@ -9,28 +10,6 @@ from math import pi
 pix_per_mm = .3 
 # Clock frequency in hertz
 clock_freq = 60
-
-# Left facing infinite vertical wall
-class Wall_Vert_Left_Inf:
-
-    def __init__(self, x):
-        self.x = x
-        
-    def coll_time(self, puck):
-
-        if puck.velocity.x <= 0:
-            # There will be no collision
-            return None
-
-        return (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
-
-    def collide(self, puck):
-        
-        coll_time = self.coll_time(puck)
-        new_loc = puck.location + puck.velocity * coll_time
-        new_vel = puck.velocity.flip_horz()
-
-        return (new_loc, new_vel)
 
 class Arena:
 
@@ -54,7 +33,6 @@ class Puck:
 
         # Time left in move 
         time_left = 1/clock_freq
-        print(time_left)
 
         while time_left > 0:
 
@@ -98,9 +76,12 @@ class Game:
                                                mm_to_pix(arena_length)))
 
         self.arena = Arena(arena_width, arena_length)
-        self.puck = Puck(Vector(60, 60), Vector.polar(700, pi/6), 30)
+        self.puck = Puck(Vector(60, 60), Vector.polar(800, pi/6), 30)
         self.clock = pygame.time.Clock()
-        self.collidables = [Wall_Vert_Left_Inf(arena_width)]
+        self.collidables = [Wall_Vert_Left_Inf(arena_width),
+                            Wall_Vert_Right_Inf(0),
+                            Wall_Horz_Up_Inf(arena_length),
+                            Wall_Horz_Down_Inf(0)]
 
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
