@@ -1,30 +1,11 @@
 import pygame
+from vector import Vector
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
 # Pixels per millimeter
 pix_per_mm = .3 
 
-class Vector:                                                                                    
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def add(self, vx):
-        return Vector(self.x + vx.x, self.y + vx.y)
-
-    def scale(self, scaler):
-        return Vector(self.x * scaler, self.y * scaler)
-
-    def flip_horz(self):
-        return Vector(-self.x, self.y)
-
-    def flip_vert(self):
-        return Vector(self.x, -self.y)
-
-    @staticmethod
-    def sum(v1, v2):
-        return Vector(v1.x + v2.x, v1.y + v2.y)
 
 class Arena:
 
@@ -55,12 +36,12 @@ class Puck:
 
         while move_left > 0:
             # Possible new location
-            pos_loc = temp_loc.add(temp_vel.scale(move_left))
+            pos_loc = temp_loc + (move_left * temp_vel)
 
             col_fr = ((arena.width - self.radius) - temp_loc.x) / (pos_loc.x - temp_loc.x)
 
             if col_fr < 1 and temp_vel.x > 0: 
-                temp_loc = temp_loc.add(temp_vel.scale(move_left).scale(col_fr))
+                temp_loc = temp_loc + (move_left * col_fr * temp_vel)
                 temp_vel = temp_vel.flip_horz()
                 move_left = move_left * (1 - col_fr)
 
