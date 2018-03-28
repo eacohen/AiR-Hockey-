@@ -1,12 +1,36 @@
 import pygame
 from vector import Vector
+import util
 from math import pi
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
 # Pixels per millimeter
 pix_per_mm = .3 
+# Clock frequency in hertz
+clock_freq = 60
 
+# Left facing infinite vertical wall
+class Wall_Vert_Left_Inf:
+
+    def __init__(self, x):
+        self.x = x
+        
+    def coll_time(self, puck):
+
+        if puck.velocity.x <= 0:
+            # There will be no collision
+            return None
+
+        return (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
+
+    def collide(self, puck):
+        
+        coll_time = self.coll_time(puck)
+        new_loc = puck.location + puck.velocity * coll_time
+        new_vel = puck.velocity.flip_horz()
+
+        return (new_loc, new_vel)
 
 class Arena:
 
@@ -25,33 +49,35 @@ class Puck:
         self.radius = radius
 
     # Update location by one clock cycle
-    def move(self, arena):
+    def move(self, collidables):
 
-        # The current location in the move
-        temp_loc = self.location
-        # The current velocity in the move
-        temp_vel = self.velocity
 
-        # Fraction of the move left to do 
-        move_left = 1
+        # Time left in move 
+        time_left = 1/clock_freq
+        print(time_left)
 
-        while move_left > 0:
-            # Possible new location
-            pos_loc = temp_loc + (move_left * temp_vel)
+        while time_left > 0:
 
-            col_fr = ((arena.width - self.radius) - temp_loc.x) / (pos_loc.x - temp_loc.x)
+            coll_times = [obj.coll_time(self) for obj in collidables]
+            min_pos = util.min_pos(coll_times)
 
-            if col_fr < 1 and temp_vel.x > 0: 
-                temp_loc = temp_loc + (move_left * col_fr * temp_vel)
-                temp_vel = temp_vel.flip_horz()
-                move_left = move_left * (1 - col_fr)
+            if min_pos is None or coll_times[min_pos] > time_left:
+
+                # There are no more collisions this cycle 
+                new_loc = self.location + (time_left * self.velocity)
+                new_vel = self.velocity 
+                time_left = 0
 
             else:
-                temp_loc = pos_loc
-                move_left = 0
 
-        self.location = temp_loc
-        self.velocity = temp_vel
+                # There is a collision
+                (new_loc, new_vel) = collidables[min_pos].collide(self)
+                time_left = time_left - coll_times[min_pos]
+
+            self.location = new_loc
+            self.velocity = new_vel
+
+
 
     # Draw on screen
     def draw(self, screen):
@@ -72,8 +98,9 @@ class Game:
                                                mm_to_pix(arena_length)))
 
         self.arena = Arena(arena_width, arena_length)
-        self.puck = Puck(Vector(60, 60), Vector.polar(40, pi/6), 30)
+        self.puck = Puck(Vector(60, 60), Vector.polar(700, pi/6), 30)
         self.clock = pygame.time.Clock()
+        self.collidables = [Wall_Vert_Left_Inf(arena_width)]
 
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
@@ -89,12 +116,12 @@ def game_run():
             if event.type == pygame.QUIT:
                 game_running = False
 
-        game.puck.move(game.arena)
+        game.puck.move(game.collidables)
 
         game.screen.fill((0, 0, 0))
         game.puck.draw(game.screen)
         
-        game.clock.tick(60)
+        game.clock.tick(clock_freq)
         pygame.display.flip()
 
 clock = pygame.time.Clock()
