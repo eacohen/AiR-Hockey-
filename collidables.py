@@ -6,6 +6,8 @@
 # Each collide_velocity() returns the velocity of the puck after the next 
 # collision with the object
 
+import math
+
 # Left facing infinite vertical wall
 class Wall_Vert_Left_Inf:
 
@@ -101,10 +103,15 @@ class Circle:
         # First find the closest distance that will occur between 
         # the circle centers
         v_diff = self.location - puck.location 
+
+        # No collision if puck is moving away from circle
+        if v_diff * puck.velocity < 0:
+            return None
+
         # Angle between puck path and initial vector to circle
-        path_ang = abs(puck.velocity.ang() - v_diff.ang())
+        path_ang = puck.velocity.ang() - v_diff.ang()
         # Simple trig application:
-        d_min = v_diff.mag() * math.sin(path_ang) 
+        d_min = v_diff.mag() * abs(math.sin(path_ang))
 
         if self.radius + puck.radius <= d_min:
             # There will be no collision 
@@ -112,17 +119,18 @@ class Circle:
 
         # Distance from the start position of the puck to the point of 
         # minimum distance to the circle
-        d_s_m = v_diff.mag() * math.cos(path_ang)
+        d_s_m = v_diff.mag() * abs(math.cos(path_ang))
         # Distance from the collision point to the point of minimum distance
         # to the circle
-        d_c_m = math.sqrt((this.radius + puck.radius) * (this.radius + puck.radius)
+        d_c_m = math.sqrt((self.radius + puck.radius) * (self.radius + puck.radius)
                           - d_min * d_min)
+        print(str(d_s_m) + "   " + str(d_c_m))
         d_s_c = d_s_m - d_c_m
         return d_s_c / puck.velocity.mag()
 
     def collide_velocity(self, puck):
 
-        coll_point = puck.location + self.coll_time(puck) * puck.velocity()
+        coll_point = puck.location + self.coll_time(puck) * puck.velocity
 
         reflection_axis = self.location - coll_point
 

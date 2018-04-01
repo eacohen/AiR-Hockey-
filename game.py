@@ -30,11 +30,17 @@ class Puck:
     # Update location by one clock cycle
     def move(self, collidables):
 
-
         # Time left in move 
         time_left = 1/clock_freq
 
+        ii = 0 
         while time_left > 0:
+
+            if ii >= 15:
+                while True:
+                    ii = ii - 1
+                    
+            ii = ii + 1
 
             coll_times = [obj.coll_time(self) for obj in collidables]
             min_pos = util.min_pos(coll_times)
@@ -49,8 +55,15 @@ class Puck:
             else:
                 # There is a collision
                 coll_time = coll_times[min_pos]
+
+                if coll_time < 0:
+                    print("Error: computed collision in past")
+
+                print(coll_time)
                 new_loc = self.location + (coll_time * self.velocity)
                 new_vel = collidables[min_pos].collide_velocity(self)
+                print(new_loc)
+                print(new_vel)
                 time_left = time_left - coll_time 
 
             self.location = new_loc
@@ -76,7 +89,7 @@ class Game:
         self.screen = pygame.display.set_mode((mm_to_pix(arena_width), 
                                                mm_to_pix(arena_length)))
 
-        self.c_pos = Vector(500,500)
+        self.c_pos = Vector(500,430)
         self.c_rad = 100
 
         self.arena = Arena(arena_width, arena_length)
@@ -106,7 +119,8 @@ def game_run():
 
         game.screen.fill((0, 0, 0))
         game.puck.draw(game.screen)
-        pygame.draw.circle(game.screen, (230, 44, 12), (game.c_pos.x, game.c_pos.y), game.c_rad)
+        pygame.draw.circle(game.screen, (230, 44, 12), 
+                (mm_to_pix(game.c_pos.x), mm_to_pix(game.c_pos.y)), mm_to_pix(game.c_rad))
         
         game.clock.tick(clock_freq)
         pygame.display.flip()
