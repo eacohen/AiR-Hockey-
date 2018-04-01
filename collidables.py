@@ -90,14 +90,40 @@ class Circle:
     #   how-to-find-the-intersection-point-of-two-moving-circles
     def coll_time(self, puck):
 
+        # Static pucks can't collide with other objects
+        if puck.velocity.mag() == 0 
+            return None
+
+        # Prevent divisions by zero
+        if self.location == puck.location:
+            return None
+
         # First find the closest distance that will occur between 
         # the circle centers
         v_diff = self.location - puck.location 
-        # Angle between puck path and intial vector to circle
+        # Angle between puck path and initial vector to circle
         path_ang = abs(puck.velocity.ang() - v_diff.ang())
         # Simple trig application:
         d_min = v_diff.mag() * math.sin(path_ang) 
 
-        if self.radius + puck.radius < d_min:
+        if self.radius + puck.radius <= d_min:
             # There will be no collision 
             return None
+
+        # Distance from the start position of the puck to the point of 
+        # minimum distance to the circle
+        d_s_m = v_diff.mag() * math.cos(path_ang)
+        # Distance from the collision point to the point of minimum distance
+        # to the circle
+        d_c_m = math.sqrt((this.radius + puck.radius) * (this.radius + puck.radius)
+                          - d_min * d_min)
+        d_s_c = d_s_m - d_c_m
+        return d_s_c / puck.velocity.mag()
+
+    def collide_velocity(self, puck):
+
+        coll_point = puck.location + self.coll_time(puck) * puck.velocity()
+
+        reflection_axis = self.location - coll_point
+
+        return puck.velocity.flip(reflection_axis)
