@@ -74,6 +74,15 @@ class Puck:
                                                 mm_to_pix(self.location.y)),
                                                 mm_to_pix(self.radius))
 
+class Paddle(Circle):
+
+    color = (200, 10, 40)
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, (mm_to_pix(self.location.x), 
+                                                mm_to_pix(self.location.y)),
+                                                mm_to_pix(self.radius))
+    
 class Game:
 
     def __init__(self):
@@ -86,17 +95,27 @@ class Game:
         self.screen = pygame.display.set_mode((mm_to_pix(arena_width), 
                                                mm_to_pix(arena_length)))
 
-        self.c_pos = Vector(400,430)
-        self.c_rad = 200
-
         self.arena = Arena(arena_width, arena_length)
         self.puck = Puck(Vector(60, 60), Vector.polar(1200, pi/6), 30)
+        self.paddle = Paddle(Vector(300, 300), 200)
         self.clock = pygame.time.Clock()
+
+        # Objects that the puck can collide with
         self.collidables = [Wall_Vert_Left_Inf(arena_width),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(arena_length),
                             Wall_Horz_Down_Inf(0),
-                            Circle(self.c_pos, self.c_rad)]
+                            self.paddle] 
+        # Objects that must be drawn every cycle 
+        self.drawables = [self.puck, self.paddle]
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+
+        for drawable in self.drawables:
+            drawable.draw(self.screen)
+
+
 
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
@@ -114,11 +133,8 @@ def game_run():
 
         game.puck.move(game.collidables)
 
-        game.screen.fill((0, 0, 0))
-        game.puck.draw(game.screen)
-        pygame.draw.circle(game.screen, (230, 44, 12), 
-                (mm_to_pix(game.c_pos.x), mm_to_pix(game.c_pos.y)), mm_to_pix(game.c_rad))
-        
+        game.draw()
+
         game.clock.tick(clock_freq)
         pygame.display.flip()
 
