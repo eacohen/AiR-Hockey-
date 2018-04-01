@@ -81,16 +81,16 @@ class Game:
         pygame.init()
 
         arena_width = 750 
-        arena_length = 2000
+        arena_length = 1000
 
         self.screen = pygame.display.set_mode((mm_to_pix(arena_width), 
                                                mm_to_pix(arena_length)))
 
-        self.c_pos = Vector(500,430)
-        self.c_rad = 100
+        self.c_pos = Vector(400,430)
+        self.c_rad = 200
 
         self.arena = Arena(arena_width, arena_length)
-        self.puck = Puck(Vector(60, 60), Vector.polar(800, pi/6), 30)
+        self.puck = Puck(Vector(60, 60), Vector.polar(1200, pi/6), 30)
         self.clock = pygame.time.Clock()
         self.collidables = [Wall_Vert_Left_Inf(arena_width),
                             Wall_Vert_Right_Inf(0),
