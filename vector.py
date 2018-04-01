@@ -33,7 +33,7 @@ class Vector:
 
     # Return the angle
     def ang(self):
-        return atan(self.y, self.x) 
+        return math.atan(self.y, self.x) 
 
     # Both scaler multiplication and dot product
     def __mul__(self, arg2):

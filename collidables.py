@@ -91,7 +91,7 @@ class Circle:
     def coll_time(self, puck):
 
         # Static pucks can't collide with other objects
-        if puck.velocity.mag() == 0 
+        if puck.velocity.mag() == 0:
             return None
 
         # Prevent divisions by zero

@@ -76,13 +76,17 @@ class Game:
         self.screen = pygame.display.set_mode((mm_to_pix(arena_width), 
                                                mm_to_pix(arena_length)))
 
+        self.c_pos = Vector(500,500)
+        self.c_rad = 100
+
         self.arena = Arena(arena_width, arena_length)
         self.puck = Puck(Vector(60, 60), Vector.polar(800, pi/6), 30)
         self.clock = pygame.time.Clock()
         self.collidables = [Wall_Vert_Left_Inf(arena_width),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(arena_length),
-                            Wall_Horz_Down_Inf(0)]
+                            Wall_Horz_Down_Inf(0),
+                            Circle(self.c_pos, self.c_rad)]
 
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
@@ -102,6 +106,7 @@ def game_run():
 
         game.screen.fill((0, 0, 0))
         game.puck.draw(game.screen)
+        pygame.draw.circle(game.screen, (230, 44, 12), (game.c_pos.x, game.c_pos.y), game.c_rad)
         
         game.clock.tick(clock_freq)
         pygame.display.flip()
