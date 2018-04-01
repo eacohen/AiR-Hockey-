@@ -59,11 +59,8 @@ class Puck:
                 if coll_time < 0:
                     print("Error: computed collision in past")
 
-                print(coll_time)
                 new_loc = self.location + (coll_time * self.velocity)
                 new_vel = collidables[min_pos].collide_velocity(self)
-                print(new_loc)
-                print(new_vel)
                 time_left = time_left - coll_time 
 
             self.location = new_loc

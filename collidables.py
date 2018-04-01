@@ -124,7 +124,6 @@ class Circle:
         # to the circle
         d_c_m = math.sqrt((self.radius + puck.radius) * (self.radius + puck.radius)
                           - d_min * d_min)
-        print(str(d_s_m) + "   " + str(d_c_m))
         d_s_c = d_s_m - d_c_m
         return d_s_c / puck.velocity.mag()
 
