@@ -90,14 +90,14 @@ class Paddle(Circle):
 # Represents the surface that the game is played on
 class Arena:
 
-    border_width = 500 
+    border_width = 100 
     border_color = (100, 52, 4)
     space_color = (245, 221, 105)
 
     x_len = 3000
     y_len = 1000
 
-    goal_width = 400
+    goal_width = 300
     goal_y_low = (y_len - goal_width) / 2
     goal_y_high = (y_len + goal_width) / 2
 
@@ -125,6 +125,12 @@ class Arena:
                                  mm_to_pix(self.border_width), 
                                  mm_to_pix(self.goal_width))
         pygame.draw.rect(self.screen, self.space_color, goal_right)
+
+        goal_left = pygame.Rect(mm_to_pix(0), 
+                                 mm_to_pix(self.border_width + self.goal_y_low),
+                                 mm_to_pix(self.border_width), 
+                                 mm_to_pix(self.goal_width))
+        pygame.draw.rect(self.screen, self.space_color, goal_left)
     
 class Game:
 
@@ -133,8 +139,9 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(1500, pi/6), 50)
-        self.paddle = Paddle(Vector(300, 300), 110, (65, 5, 5))
+        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
+        self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
+        self.paddle_2 = Paddle(200, Vector(self.arena.y_len / 2), 70, (65, 5, 5))
         self.clock = pygame.time.Clock()
 
         bcirc_r = 10
@@ -154,18 +161,27 @@ class Game:
                                 self.arena.x_len 
                                 + 2*self.puck.radius + self.arena.border_width,
                                 self.arena.goal_y_high),
-                            Circle(Vector(self.arena.x_len + vcirc_r,
-                                          self.arena.goal_y_low - vcirc_r),
-                                   vcirc_r),
-                            Circle(Vector(self.arena.x_len + vcirc_r,
-                                          self.arena.goal_y_high + vcirc_r),
-                                   vcirc_r),
-                            Wall_Vert_Right_Inf(0),
+                            Wall_Vert_Right(0, 0,
+                                self.arena.goal_y_low),
+                            Wall_Vert_Right(0,
+                                self.arena.goal_y_high,
+                                self.arena.y_len),
+                            Wall_Horz_Down(- 2*self.puck.radius - self.arena.border_width,
+                                           0, self.arena.goal_y_low),
+                            Wall_Horz_Up(- 2*self.puck.radius - self.arena.border_width,
+                                           0, self.arena.goal_y_high),
+                            Circle(Vector(self.arena.x_len + bcirc_r,
+                                          self.arena.goal_y_low - bcirc_r),
+                                   bcirc_r),
+                            Circle(Vector(self.arena.x_len + bcirc_r,
+                                          self.arena.goal_y_high + bcirc_r),
+                                   bcirc_r),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
-                            self.paddle] 
+                            self.paddle_1,
+                            self.paddle_2] 
         # Objects that must be drawn every cycle 
-        self.drawables = [self.puck, self.paddle]
+        self.drawables = [self.puck, self.paddle_1, self.paddle_2]
 
     def draw(self):
         self.arena.screen.fill((0, 0, 0))
@@ -191,7 +207,7 @@ def game_run():
             if event.type == pygame.QUIT:
                 game_running = False
             elif event.type == pygame.MOUSEMOTION:
-                game.paddle.update_loc(event.pos, game.arena) 
+                game.paddle_1.update_loc(event.pos, game.arena) 
 
         game.puck.move(game.collidables)
 
