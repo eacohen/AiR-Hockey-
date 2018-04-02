@@ -138,11 +138,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         # Objects that the puck can collide with
-        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
-                                self.arena.goal_y_low),
-                            Wall_Vert_Left(self.arena.x_len, 
-                                self.arena.goal_y_high,
-                                self.arena.y_len),
+        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0, y_len)
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
