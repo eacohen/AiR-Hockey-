@@ -138,7 +138,8 @@ class Game:
         self.clock = pygame.time.Clock()
 
         # Objects that the puck can collide with
-        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0, y_len)
+        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
+                                self.arena.goal_y_low),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
@@ -179,7 +180,15 @@ def game_run():
         game.clock.tick(clock_freq)
         pygame.display.flip()
 
+        if game.puck.location.x > game.arena.x_len + game.arena.border_width:
+            # Goal scored
+            # Wait and reset puck
+
+            for i in range(0, 30):
+                game.clock.tick(clock_freq)
+
+            game.puck.location = Vector(200, 200)
+
 clock = pygame.time.Clock()
-    
 
 game_run()

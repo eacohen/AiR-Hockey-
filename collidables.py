@@ -90,7 +90,7 @@ class Wall_Vert_Left:
         
     def coll_time(self, puck):
 
-        if puck.velocity.x <= 0 or puck.location.x > self.x:
+        if puck.velocity.x <= 0 or puck.location.x + puck.radius > self.x:
             # There will be no collision
             return None
 
@@ -101,6 +101,8 @@ class Wall_Vert_Left:
         # region along the wall
         if coll_y < self.y_low or coll_y > self.y_high: 
             return None
+
+        return coll_time
 
     def collide_velocity(self, puck):
         
