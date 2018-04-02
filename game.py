@@ -216,7 +216,8 @@ def game_run():
         game.clock.tick(clock_freq)
         pygame.display.flip()
 
-        if game.puck.location.x > game.arena.x_len + game.arena.border_width:
+        if game.puck.location.x > game.arena.x_len + game.arena.border_width or \
+           game.puck.location.x < -game.arena.border_width:
             # Goal scored
             # Wait and reset puck
 
