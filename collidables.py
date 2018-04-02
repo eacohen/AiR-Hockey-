@@ -95,7 +95,7 @@ class Wall_Vert_Left:
             return None
 
         coll_time = (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
-        coll_y = coll_time * puck.velocity.y
+        coll_y = puck.location.y + coll_time * puck.velocity.y
 
         # Collisions only happen when the center of the puck is in the horizontal 
         # region along the wall

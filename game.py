@@ -90,7 +90,7 @@ class Paddle(Circle):
 # Represents the surface that the game is played on
 class Arena:
 
-    border_width = 60
+    border_width = 200
     border_color = (100, 52, 4)
     space_color = (245, 221, 105)
 
@@ -133,13 +133,17 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
+        self.puck = Puck(Vector(60, 60), Vector.polar(1500, pi/6), 50)
         self.paddle = Paddle(Vector(300, 300), 110, (65, 5, 5))
         self.clock = pygame.time.Clock()
 
+        print(self.arena.goal_y_low)
         # Objects that the puck can collide with
         self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
                                 self.arena.goal_y_low),
+                            Wall_Vert_Left(self.arena.x_len, 
+                                self.arena.goal_y_high,
+                                self.arena.y_len),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
