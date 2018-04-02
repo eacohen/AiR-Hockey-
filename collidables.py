@@ -80,6 +80,32 @@ class Wall_Horz_Down_Inf:
         
         return puck.velocity.flip_vert()
 
+# Left facing finite vertical wall
+class Wall_Vert_Left:
+
+    def __init__(self, x, y_1, y_2):
+        self.x = x
+        self.y_low = min(y_1, y_2)
+        self.y_high = max(y_1, y_2)
+        
+    def coll_time(self, puck):
+
+        if puck.velocity.x <= 0 or puck.location.x > self.x:
+            # There will be no collision
+            return None
+
+        coll_time = (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
+        coll_y = coll_time * puck.velocity.y
+
+        # Collisions only happen when the center of the puck is in the horizontal 
+        # region along the wall
+        if coll_y < self.y_low or coll_y > self.y_high: 
+            return None
+
+    def collide_velocity(self, puck):
+        
+        return puck.velocity.flip_horz()
+
 class Circle:
 
     def __init__(self, location, radius):

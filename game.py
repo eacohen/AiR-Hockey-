@@ -70,7 +70,16 @@ class Puck:
 
 class Paddle(Circle):
 
-    color = (65, 5, 5)
+    def __init__(self, location, radius, color):
+        self.location = location 
+        self.radius = radius
+        self.color = color
+    
+    # Update the location from a mouse position
+    def update_loc(self, new_pos, arena):
+        (m_x, m_y) = new_pos
+        self.location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) - Vector(arena.border_width,
+                                                                        arena.border_width)
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
@@ -81,16 +90,22 @@ class Paddle(Circle):
 # Represents the surface that the game is played on
 class Arena:
 
-    border_width = 100
+    border_width = 60
     border_color = (100, 52, 4)
     space_color = (245, 221, 105)
 
-    def __init__(self, x_len, y_len):
-        self.x_len = x_len
-        self.y_len = y_len
+    x_len = 3000
+    y_len = 1000
 
-        self.screen_x = x_len + 2 * self.border_width
-        self.screen_y = y_len + 2 * self.border_width
+    goal_width = 400
+    goal_y_low = (y_len - goal_width) / 2
+    goal_y_high = (y_len + goal_width) / 2
+
+    screen_x = x_len + 2 * border_width
+    screen_y = y_len + 2 * border_width
+
+
+    def __init__(self):
 
         self.screen = pygame.display.set_mode((mm_to_pix(self.screen_x), 
                                                mm_to_pix(self.screen_y)))
@@ -104,6 +119,12 @@ class Arena:
                                  mm_to_pix(self.x_len), 
                                  mm_to_pix(self.y_len))
         pygame.draw.rect(self.screen, self.space_color, cent_arena)
+        
+        goal_right = pygame.Rect(mm_to_pix(self.border_width + self.x_len), 
+                                 mm_to_pix(self.border_width + self.goal_y_low),
+                                 mm_to_pix(self.border_width), 
+                                 mm_to_pix(self.goal_width))
+        pygame.draw.rect(self.screen, self.space_color, goal_right)
     
 class Game:
 
@@ -111,14 +132,17 @@ class Game:
 
         pygame.init()
 
-        self.arena = Arena(3000, 1000)
-
-        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 30)
-        self.paddle = Paddle(Vector(300, 300), 100)
+        self.arena = Arena()
+        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
+        self.paddle = Paddle(Vector(300, 300), 110, (65, 5, 5))
         self.clock = pygame.time.Clock()
 
         # Objects that the puck can collide with
-        self.collidables = [Wall_Vert_Left_Inf(self.arena.x_len),
+        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
+                                self.arena.goal_y_low),
+                            Wall_Vert_Left(self.arena.x_len, 
+                                self.arena.goal_y_high,
+                                self.arena.y_len),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
@@ -133,10 +157,11 @@ class Game:
         for drawable in self.drawables:
             drawable.draw(self.arena)
 
-
-
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
+
+def pix_to_mm(pix):
+    return pix / pix_per_mm
 
 def game_run():
     
@@ -148,6 +173,8 @@ def game_run():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_running = False
+            elif event.type == pygame.MOUSEMOTION:
+                game.paddle.update_loc(event.pos, game.arena) 
 
         game.puck.move(game.collidables)
 
