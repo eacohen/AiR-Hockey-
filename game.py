@@ -11,16 +11,9 @@ pix_per_mm = .3
 # Clock frequency in hertz
 clock_freq = 60
 
-class Arena:
-
-    def __init__(self, width, length):
-        # Both measured in mm
-        self.width = width
-        self.length = length
-
 class Puck:
 
-    color = (10, 100, 23)
+    color = (183, 4, 4)
 
     def __init__(self, location, velocity, radius):
         self.location = location
@@ -69,19 +62,48 @@ class Puck:
 
 
     # Draw on screen
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (mm_to_pix(self.location.x), 
-                                                mm_to_pix(self.location.y)),
-                                                mm_to_pix(self.radius))
+    def draw(self, arena):
+        pygame.draw.circle(arena.screen, self.color, 
+                           (mm_to_pix(self.location.x + arena.border_width), 
+                            mm_to_pix(self.location.y + arena.border_width)),
+                           mm_to_pix(self.radius))
 
 class Paddle(Circle):
 
-    color = (200, 10, 40)
+    color = (65, 5, 5)
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (mm_to_pix(self.location.x), 
-                                                mm_to_pix(self.location.y)),
-                                                mm_to_pix(self.radius))
+    def draw(self, arena):
+        pygame.draw.circle(arena.screen, self.color, 
+                           (mm_to_pix(self.location.x + arena.border_width), 
+                            mm_to_pix(self.location.y + arena.border_width)),
+                           mm_to_pix(self.radius))
+
+# Represents the surface that the game is played on
+class Arena:
+
+    border_width = 100
+    border_color = (100, 52, 4)
+    space_color = (245, 221, 105)
+
+    def __init__(self, x_len, y_len):
+        self.x_len = x_len
+        self.y_len = y_len
+
+        self.screen_x = x_len + 2 * self.border_width
+        self.screen_y = y_len + 2 * self.border_width
+
+        self.screen = pygame.display.set_mode((mm_to_pix(self.screen_x), 
+                                               mm_to_pix(self.screen_y)))
+
+    def draw(self):
+        borders = pygame.Rect(0, 0, mm_to_pix(self.screen_x), mm_to_pix(self.screen_y))
+        pygame.draw.rect(self.screen, self.border_color, borders)
+
+        cent_arena = pygame.Rect(mm_to_pix(self.border_width), 
+                                 mm_to_pix(self.border_width),
+                                 mm_to_pix(self.x_len), 
+                                 mm_to_pix(self.y_len))
+        pygame.draw.rect(self.screen, self.space_color, cent_arena)
     
 class Game:
 
@@ -89,31 +111,27 @@ class Game:
 
         pygame.init()
 
-        arena_width = 750 
-        arena_length = 1000
+        self.arena = Arena(3000, 1000)
 
-        self.screen = pygame.display.set_mode((mm_to_pix(arena_width), 
-                                               mm_to_pix(arena_length)))
-
-        self.arena = Arena(arena_width, arena_length)
-        self.puck = Puck(Vector(60, 60), Vector.polar(1200, pi/6), 30)
-        self.paddle = Paddle(Vector(300, 300), 200)
+        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 30)
+        self.paddle = Paddle(Vector(300, 300), 100)
         self.clock = pygame.time.Clock()
 
         # Objects that the puck can collide with
-        self.collidables = [Wall_Vert_Left_Inf(arena_width),
+        self.collidables = [Wall_Vert_Left_Inf(self.arena.x_len),
                             Wall_Vert_Right_Inf(0),
-                            Wall_Horz_Up_Inf(arena_length),
+                            Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
                             self.paddle] 
         # Objects that must be drawn every cycle 
         self.drawables = [self.puck, self.paddle]
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        self.arena.screen.fill((0, 0, 0))
+        self.arena.draw()
 
         for drawable in self.drawables:
-            drawable.draw(self.screen)
+            drawable.draw(self.arena)
 
 
 
