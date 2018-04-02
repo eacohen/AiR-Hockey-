@@ -137,6 +137,8 @@ class Game:
         self.paddle = Paddle(Vector(300, 300), 110, (65, 5, 5))
         self.clock = pygame.time.Clock()
 
+        bcirc_r = 10
+
         print(self.arena.goal_y_low)
         # Objects that the puck can collide with
         self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
@@ -152,6 +154,12 @@ class Game:
                                 self.arena.x_len 
                                 + 2*self.puck.radius + self.arena.border_width,
                                 self.arena.goal_y_high),
+                            Circle(Vector(self.arena.x_len + vcirc_r,
+                                          self.arena.goal_y_low - vcirc_r),
+                                   vcirc_r),
+                            Circle(Vector(self.arena.x_len + vcirc_r,
+                                          self.arena.goal_y_high + vcirc_r),
+                                   vcirc_r),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
