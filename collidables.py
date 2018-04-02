@@ -108,6 +108,90 @@ class Wall_Vert_Left:
         
         return puck.velocity.flip_horz()
 
+# Left facing finite vertical wall
+class Wall_Vert_Right:
+
+    def __init__(self, x, y_1, y_2):
+        self.x = x
+        self.y_low = min(y_1, y_2)
+        self.y_high = max(y_1, y_2)
+        
+    def coll_time(self, puck):
+
+        if puck.velocity.x >= 0 or puck.location.x - puck.radius < self.x:
+            # There will be no collision
+            return None
+
+        coll_time = ((puck.location.x - puck.radius) - self.x) / -puck.velocity.x
+        coll_y = puck.location.y + coll_time * puck.velocity.y
+
+        # Collisions only happen when the center of the puck is in the horizontal 
+        # region along the wall
+        if coll_y < self.y_low or coll_y > self.y_high: 
+            return None
+
+        return coll_time
+
+    def collide_velocity(self, puck):
+        
+        return puck.velocity.flip_horz()
+
+# Up facing finite horizontal wall
+class Wall_Horz_Up:
+
+    def __init__(self, x_1, x_2, y):
+        self.x_low = min(x_1, x_2)
+        self.x_high = max(x_1, x_2)
+        self.y = y
+        
+    def coll_time(self, puck):
+
+        if puck.velocity.y <= 0 or puck.location.y + puck.radius > self.y:
+            # There will be no collision
+            return None
+
+        coll_time = (self.y - (puck.location.y + puck.radius)) / puck.velocity.y
+        coll_x = puck.location.x + coll_time * puck.velocity.x
+
+        # Collisions only happen when the center of the puck is in the horizontal 
+        # region along the wall
+        if coll_x < self.x_low or coll_x > self.x_high: 
+            return None
+
+        return coll_time
+
+    def collide_velocity(self, puck):
+        
+        return puck.velocity.flip_vert()
+
+# Down facing finite horizontal wall
+class Wall_Horz_Down:
+
+    def __init__(self, x_1, x_2, y):
+        self.x_low = min(x_1, x_2)
+        self.x_high = max(x_1, x_2)
+        self.y = y
+        
+    def coll_time(self, puck):
+
+        if puck.velocity.y >= 0 or puck.location.y - puck.radius < self.y:
+            # There will be no collision
+            return None
+
+        coll_time = ((puck.location.y - puck.radius) - self.y) / -puck.velocity.y
+        coll_x = puck.location.x + coll_time * puck.velocity.x
+
+        # Collisions only happen when the center of the puck is in the horizontal 
+        # region along the wall
+        if coll_x < self.x_low or coll_x > self.x_high: 
+            return None
+
+        return coll_time
+
+    def collide_velocity(self, puck):
+        
+        return puck.velocity.flip_vert()
+
 class Circle:
 
     def __init__(self, location, radius):

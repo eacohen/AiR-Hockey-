@@ -90,7 +90,7 @@ class Paddle(Circle):
 # Represents the surface that the game is played on
 class Arena:
 
-    border_width = 200
+    border_width = 500 
     border_color = (100, 52, 4)
     space_color = (245, 221, 105)
 
@@ -144,6 +144,14 @@ class Game:
                             Wall_Vert_Left(self.arena.x_len, 
                                 self.arena.goal_y_high,
                                 self.arena.y_len),
+                            Wall_Horz_Down(self.arena.x_len, 
+                                self.arena.x_len 
+                                + 2*self.puck.radius + self.arena.border_width,
+                                self.arena.goal_y_low),
+                            Wall_Horz_Up(self.arena.x_len, 
+                                self.arena.x_len 
+                                + 2*self.puck.radius + self.arena.border_width,
+                                self.arena.goal_y_high),
                             Wall_Vert_Right_Inf(0),
                             Wall_Horz_Up_Inf(self.arena.y_len),
                             Wall_Horz_Down_Inf(0),
