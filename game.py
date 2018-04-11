@@ -47,7 +47,7 @@ class Puck(Circle):
                     print("Error: computed collision in past")
 
                 new_loc = self.location + (coll_time * self.velocity)
-                new_vel = collidables[min_pos].collide_velocity(self)
+                new_vel = collidables[min_pos].collide_velocity(self, new_loc)
                 time_left = time_left - coll_time 
 
             self.location = new_loc
@@ -158,7 +158,7 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(1000, pi/6), 50)
+        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
         self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, (65, 5, 5))
         self.clock = pygame.time.Clock()

@@ -22,7 +22,7 @@ class Wall_Vert_Left_Inf:
 
         return (self.x - (puck.location.x + puck.radius)) / puck.velocity.x
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_horz()
 
@@ -40,7 +40,7 @@ class Wall_Vert_Right_Inf:
 
         return ((puck.location.x - puck.radius) - self.x) / -puck.velocity.x
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_horz()
 
@@ -58,7 +58,7 @@ class Wall_Horz_Up_Inf:
 
         return (self.y - (puck.location.y + puck.radius)) / puck.velocity.y
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_vert()
 
@@ -76,7 +76,7 @@ class Wall_Horz_Down_Inf:
 
         return ((puck.location.y - puck.radius) - self.y) / -puck.velocity.y
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_vert()
 
@@ -104,7 +104,7 @@ class Wall_Vert_Left:
 
         return coll_time
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_horz()
 
@@ -132,7 +132,7 @@ class Wall_Vert_Right:
 
         return coll_time
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_horz()
 
@@ -160,7 +160,7 @@ class Wall_Horz_Up:
 
         return coll_time
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_vert()
 
@@ -188,7 +188,7 @@ class Wall_Horz_Down:
 
         return coll_time
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, puck, coll_point):
         
         return puck.velocity.flip_vert()
 
@@ -244,9 +244,7 @@ class Circle:
         d_s_c = d_s_m - d_c_m
         return d_s_c / obj2.velocity.mag()
 
-    def collide_velocity(self, obj2):
-
-        coll_point = obj2.location + self.coll_time(obj2) * obj2.velocity
+    def collide_velocity(self, obj2, coll_point):
 
         reflection_axis = self.location - coll_point
 
