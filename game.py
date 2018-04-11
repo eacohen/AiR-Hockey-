@@ -19,6 +19,7 @@ class Puck(Circle):
         self.location = location
         self.velocity = velocity
         self.radius = radius
+        self.ghost = False
 
     # Update location by one clock cycle
     def move(self, collidables):
@@ -68,19 +69,39 @@ class Paddle(Circle):
         self.radius = radius
         self.color = color
         self.ghost = False
+        self.velocity = Vector(0, 0)
     
     # Update the location from a mouse position
-    def update_loc(self, new_pos, arena, puck):
+    def start_move(self, new_pos, arena, puck):
         (m_x, m_y) = new_pos
-        self.location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) - Vector(arena.border_width,
-                                                                        arena.border_width)
+        self.new_location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) \
+                            - Vector(arena.border_width, arena.border_width)
+        self.velocity = clock_freq * (self.new_location - self.location) 
+
+
+        # See if the paddle crashes into the puck
+        puck_coll_time = puck.coll_time(self)
+
+        if (puck_coll_time != None and puck_coll_time < 1/clock_freq):
+
+            # The paddle will collide with the puck
+            self.location = self.location + puck_coll_time * self.velocity
+
+        else:
+            self.location = self.new_location
+
+
         self.ghost = self.intersecting(puck)
+
+    def end_move(self, arena, puck):
+        pass
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
                            (mm_to_pix(self.location.x + arena.border_width), 
                             mm_to_pix(self.location.y + arena.border_width)),
                            mm_to_pix(self.radius))
+
 
 # Represents the surface that the game is played on
 class Arena:
@@ -223,9 +244,11 @@ def game_run():
             if event.type == pygame.QUIT:
                 game_running = False
             elif event.type == pygame.MOUSEMOTION:
-                game.paddle_1.update_loc(event.pos, game.arena, game.puck) 
+                game.paddle_1.start_move(event.pos, game.arena, game.puck) 
 
         game.puck.move(game.collidables)
+
+        game.paddle_1.end_move(game.arena, game.puck)
 
         game.draw()
 
