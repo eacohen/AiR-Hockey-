@@ -96,9 +96,6 @@ class Paddle(Circle):
         else:
             self.location = self.new_location
 
-
-
-
     def end_move(self, arena, puck):
         self.location = self.new_location
         self.ghost = self.intersecting(puck)
@@ -108,7 +105,6 @@ class Paddle(Circle):
                            (mm_to_pix(self.location.x + arena.border_width), 
                             mm_to_pix(self.location.y + arena.border_width)),
                            mm_to_pix(self.radius))
-
 
 # Represents the surface that the game is played on
 class Arena:
