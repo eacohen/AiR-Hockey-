@@ -204,55 +204,55 @@ class Circle:
     # this function. Reading it may help when following this algorithm
     #   https://math.stackexchange.com/questions/913350/
     #   how-to-find-the-intersection-point-of-two-moving-circles
-    def coll_time(self, puck):
+    def coll_time(self, obj2):
 
         if self.ghost:
             return None
 
         # Static pucks can't collide with other objects
-        if puck.velocity.mag() == 0:
+        if obj2.velocity.mag() == 0:
             return None
 
         # Prevent divisions by zero
-        if self.location == puck.location:
+        if self.location == obj2.location:
             return None
 
         # First find the closest distance that will occur between 
         # the circle centers
-        v_diff = self.location - puck.location 
+        v_diff = self.location - obj2.location 
 
-        # No collision if puck is moving away from circle
-        if v_diff * puck.velocity < 0:
+        # No collision if obj2 is moving away from circle
+        if v_diff * obj2.velocity < 0:
             return None
 
-        # Angle between puck path and initial vector to circle
-        path_ang = puck.velocity.ang() - v_diff.ang()
+        # Angle between obj2 path and initial vector to circle
+        path_ang = obj2.velocity.ang() - v_diff.ang()
         # Simple trig application:
         d_min = v_diff.mag() * abs(math.sin(path_ang))
 
-        if self.radius + puck.radius <= d_min:
+        if self.radius + obj2.radius <= d_min:
             # There will be no collision 
             return None
 
-        # Distance from the start position of the puck to the point of 
+        # Distance from the start position of the obj2 to the point of 
         # minimum distance to the circle
         d_s_m = v_diff.mag() * abs(math.cos(path_ang))
         # Distance from the collision point to the point of minimum distance
         # to the circle
-        d_c_m = math.sqrt((self.radius + puck.radius) * (self.radius + puck.radius)
+        d_c_m = math.sqrt((self.radius + obj2.radius) * (self.radius + obj2.radius)
                           - d_min * d_min)
         d_s_c = d_s_m - d_c_m
-        return d_s_c / puck.velocity.mag()
+        return d_s_c / obj2.velocity.mag()
 
-    def collide_velocity(self, puck):
+    def collide_velocity(self, obj2):
 
-        coll_point = puck.location + self.coll_time(puck) * puck.velocity
+        coll_point = obj2.location + self.coll_time(obj2) * obj2.velocity
 
         reflection_axis = self.location - coll_point
 
-        return puck.velocity.flip(reflection_axis)
+        return obj2.velocity.flip(reflection_axis)
 
-    # Is the puck passing through this circle?
-    def intersecting(self, puck):
+    # Is the obj2 passing through this circle?
+    def intersecting(self, c2):
         
-        return (puck.location - self.location).mag() < puck.radius + self.radius
+        return (c2.location - self.location).mag() < c2.radius + self.radius

@@ -11,7 +11,7 @@ pix_per_mm = .3
 # Clock frequency in hertz
 clock_freq = 60
 
-class Puck:
+class Puck(Circle):
 
     color = (183, 4, 4)
 
@@ -142,7 +142,6 @@ class Game:
         # Very small corner circle radius
         bcirc_r = 10
 
-        print(self.arena.goal_y_low)
         # Objects that the puck can collide with
         self.collidables = [
                             # Upper right wall
