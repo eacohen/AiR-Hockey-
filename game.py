@@ -67,12 +67,14 @@ class Paddle(Circle):
         self.location = location 
         self.radius = radius
         self.color = color
+        self.ghost = False
     
     # Update the location from a mouse position
-    def update_loc(self, new_pos, arena):
+    def update_loc(self, new_pos, arena, puck):
         (m_x, m_y) = new_pos
         self.location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) - Vector(arena.border_width,
                                                                         arena.border_width)
+        self.ghost = self.intersecting(puck)
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
@@ -132,7 +134,7 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
+        self.puck = Puck(Vector(60, 60), Vector.polar(1000, pi/6), 50)
         self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, (65, 5, 5))
         self.clock = pygame.time.Clock()
@@ -222,7 +224,7 @@ def game_run():
             if event.type == pygame.QUIT:
                 game_running = False
             elif event.type == pygame.MOUSEMOTION:
-                game.paddle_1.update_loc(event.pos, game.arena) 
+                game.paddle_1.update_loc(event.pos, game.arena, game.puck) 
 
         game.puck.move(game.collidables)
 

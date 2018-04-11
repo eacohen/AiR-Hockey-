@@ -197,12 +197,17 @@ class Circle:
     def __init__(self, location, radius):
         self.location = location 
         self.radius = radius
+        # Object can't collide 
+        self.ghost = False
 
     # Note: the following webpage was helpful when working out the math of 
     # this function. Reading it may help when following this algorithm
     #   https://math.stackexchange.com/questions/913350/
     #   how-to-find-the-intersection-point-of-two-moving-circles
     def coll_time(self, puck):
+
+        if self.ghost:
+            return None
 
         # Static pucks can't collide with other objects
         if puck.velocity.mag() == 0:
@@ -246,3 +251,8 @@ class Circle:
         reflection_axis = self.location - coll_point
 
         return puck.velocity.flip(reflection_axis)
+
+    # Is the puck passing through this circle?
+    def intersecting(self, puck):
+        
+        return (puck.location - self.location).mag() < puck.radius + self.radius
