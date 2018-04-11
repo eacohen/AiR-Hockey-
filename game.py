@@ -26,14 +26,7 @@ class Puck:
         # Time left in move 
         time_left = 1/clock_freq
 
-        ii = 0 
         while time_left > 0:
-
-            if ii >= 15:
-                while True:
-                    ii = ii - 1
-                    
-            ii = ii + 1
 
             coll_times = [obj.coll_time(self) for obj in collidables]
             min_pos = util.min_pos(coll_times)
@@ -139,45 +132,67 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(3000, pi/6), 50)
+        self.puck = Puck(Vector(60, 60), Vector.polar(1000, pi/6), 50)
         self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, (65, 5, 5))
         self.clock = pygame.time.Clock()
 
+        # Very small corner circle radius
         bcirc_r = 10
 
         print(self.arena.goal_y_low)
         # Objects that the puck can collide with
-        self.collidables = [Wall_Vert_Left(self.arena.x_len, 0,
+        self.collidables = [
+                            # Upper right wall
+                            Wall_Vert_Left(self.arena.x_len, 0,
                                 self.arena.goal_y_low),
+                            # Lower right wall
                             Wall_Vert_Left(self.arena.x_len, 
                                 self.arena.goal_y_high,
                                 self.arena.y_len),
+                            # Right goal top wall
                             Wall_Horz_Down(self.arena.x_len, 
                                 self.arena.x_len 
                                 + 2*self.puck.radius + self.arena.border_width,
                                 self.arena.goal_y_low),
+                            # Right goal bottom wall
                             Wall_Horz_Up(self.arena.x_len, 
                                 self.arena.x_len 
                                 + 2*self.puck.radius + self.arena.border_width,
                                 self.arena.goal_y_high),
-                            Wall_Vert_Right(0, 0,
-                                self.arena.goal_y_low),
-                            Wall_Vert_Right(0,
-                                self.arena.goal_y_high,
-                                self.arena.y_len),
-                            Wall_Horz_Down(- 2*self.puck.radius - self.arena.border_width,
-                                           0, self.arena.goal_y_low),
-                            Wall_Horz_Up(- 2*self.puck.radius - self.arena.border_width,
-                                           0, self.arena.goal_y_high),
+                            # Right goal top corner
                             Circle(Vector(self.arena.x_len + bcirc_r,
                                           self.arena.goal_y_low - bcirc_r),
                                    bcirc_r),
+                            # Right goal bottom corner
                             Circle(Vector(self.arena.x_len + bcirc_r,
                                           self.arena.goal_y_high + bcirc_r),
                                    bcirc_r),
-                            Wall_Horz_Up_Inf(self.arena.y_len),
+                            # Upper left wall
+                            Wall_Vert_Right(0, 0,
+                                self.arena.goal_y_low),
+                            # Lower left wall
+                            Wall_Vert_Right(0,
+                                self.arena.goal_y_high,
+                                self.arena.y_len),
+                            # Left goal top wall
+                            Wall_Horz_Down(- 2*self.puck.radius - self.arena.border_width,
+                                           0, self.arena.goal_y_low),
+                            # Left goal bottom wall
+                            Wall_Horz_Up(- 2*self.puck.radius - self.arena.border_width,
+                                           0, self.arena.goal_y_high),
+                            # Left goal top corner
+                            Circle(Vector(-bcirc_r,
+                                          self.arena.goal_y_low - bcirc_r),
+                                   bcirc_r),
+                            # Left goal bottom corner
+                            Circle(Vector(-bcirc_r,
+                                          self.arena.goal_y_high + bcirc_r),
+                                   bcirc_r),
+                            # Top wall
                             Wall_Horz_Down_Inf(0),
+                            # Bottom wall
+                            Wall_Horz_Up_Inf(self.arena.y_len),
                             self.paddle_1,
                             self.paddle_2] 
         # Objects that must be drawn every cycle 
