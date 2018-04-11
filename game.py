@@ -79,22 +79,29 @@ class Paddle(Circle):
         self.velocity = clock_freq * (self.new_location - self.location) 
 
 
-        # See if the paddle crashes into the puck
-        puck_coll_time = puck.coll_time(self)
+        if not self.ghost:
+            # The paddle can't collide with the puck while its ghost, in order
+            # to let the puck move away
 
-        if (puck_coll_time != None and puck_coll_time < 1/clock_freq):
+            # See if the paddle crashes into the puck
+            puck_coll_time = puck.coll_time(self)
 
-            # The paddle will collide with the puck
-            self.location = self.location + puck_coll_time * self.velocity
+            if puck_coll_time != None and puck_coll_time < 1/clock_freq:
 
+                # The paddle will collide with the puck
+                self.location = self.location + puck_coll_time * self.velocity
+
+            else:
+                self.location = self.new_location
         else:
             self.location = self.new_location
 
 
-        self.ghost = self.intersecting(puck)
+
 
     def end_move(self, arena, puck):
-        pass
+        self.location = self.new_location
+        self.ghost = self.intersecting(puck)
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
