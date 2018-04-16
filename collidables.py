@@ -8,6 +8,9 @@
 
 import math
 
+# Fraction of velocity puck retains in a collision with a wall
+wall_coll_const = .95
+
 # Left facing infinite vertical wall
 class Wall_Vert_Left_Inf:
 
@@ -24,7 +27,7 @@ class Wall_Vert_Left_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz()
+        return puck.velocity.flip_horz() * wall_coll_const
 
 # Right facing infinite vertical wall
 class Wall_Vert_Right_Inf:
@@ -42,7 +45,7 @@ class Wall_Vert_Right_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz()
+        return puck.velocity.flip_horz() * wall_coll_const
 
 # Up facing infinite horizontal wall
 class Wall_Horz_Up_Inf:
@@ -60,7 +63,7 @@ class Wall_Horz_Up_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert()
+        return puck.velocity.flip_vert() * wall_coll_const
 
 # Down facing infinite horizontal wall
 class Wall_Horz_Down_Inf:
@@ -78,7 +81,7 @@ class Wall_Horz_Down_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert()
+        return puck.velocity.flip_vert() * wall_coll_const
 
 # Left facing finite vertical wall
 class Wall_Vert_Left:
@@ -106,7 +109,7 @@ class Wall_Vert_Left:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz()
+        return puck.velocity.flip_horz() * wall_coll_const
 
 # Left facing finite vertical wall
 class Wall_Vert_Right:
@@ -134,7 +137,7 @@ class Wall_Vert_Right:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz()
+        return puck.velocity.flip_horz() * wall_coll_const
 
 # Up facing finite horizontal wall
 class Wall_Horz_Up:
@@ -162,7 +165,7 @@ class Wall_Horz_Up:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert()
+        return puck.velocity.flip_vert() * wall_coll_const
 
 # Down facing finite horizontal wall
 class Wall_Horz_Down:
@@ -190,7 +193,7 @@ class Wall_Horz_Down:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert()
+        return puck.velocity.flip_vert() * wall_coll_const
 
 class Circle:
 
@@ -248,7 +251,7 @@ class Circle:
 
         reflection_axis = self.location - coll_point
 
-        return obj2.velocity.flip(reflection_axis)
+        return obj2.velocity.flip(reflection_axis) * self.coll_const
 
     # Is the obj2 passing through this circle?
     def intersecting(self, c2):

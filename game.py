@@ -9,7 +9,7 @@ from collidables import *
 # Pixels per millimeter
 pix_per_mm = .3 
 # Clock frequency in hertz
-clock_freq = 60
+clock_freq = 120
 
 class Puck(Circle):
 
@@ -70,6 +70,7 @@ class Paddle(Circle):
         self.color = color
         self.ghost = False
         self.velocity = Vector(0, 0)
+        self.coll_const = wall_coll_const 
     
     # Update the location from a mouse position
     def start_move(self, new_pos, arena, puck):
@@ -152,7 +153,7 @@ class Arena:
                                  mm_to_pix(self.border_width), 
                                  mm_to_pix(self.goal_width))
         pygame.draw.rect(self.screen, self.space_color, goal_left)
-    
+
 class Game:
 
     def __init__(self):
