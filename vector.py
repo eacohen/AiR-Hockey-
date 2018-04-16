@@ -62,6 +62,11 @@ class Vector:
 
         return self / mag
 
+    # 1-dimensional projection of vector onto an axis vector
+    def projection(self, proj_axis):
+        axis_normal = proj_axis.normalize()
+        return (self * axis_normal) * axis_normal
+
     def flip_horz(self):
         return Vector(-self.x, self.y)
 

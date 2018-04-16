@@ -246,6 +246,9 @@ def game_run():
     game_running = True
 
     while game_running:
+
+        game.paddle_1.velocity = Vector(0,0)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_running = False

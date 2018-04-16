@@ -214,6 +214,8 @@ class Circle:
         # Object can't collide 
         self.ghost = False
         self.coll_const = wall_coll_const
+        self.velocity = vector.Vector(0,0)
+
 
     # Note: the following webpage was helpful when working out the math of 
     # this function. Reading it may help when following this algorithm
@@ -261,9 +263,13 @@ class Circle:
 
     def collide_velocity(self, obj2, coll_point):
 
-        reflection_axis = self.location - coll_point
+        coll_normal = self.location - obj2.location
+        self_v_proj = self.velocity.projection(coll_normal)
+        obj2_v_proj = obj2.velocity.projection(coll_normal)
 
-        return obj2.velocity.flip(reflection_axis) * self.coll_const
+        obj2_impulse = (1 + self.coll_const) * (self_v_proj - obj2_v_proj)
+        return obj2.velocity + obj2_impulse
+
 
     # Is the obj2 passing through this circle?
     def intersecting(self, c2):
