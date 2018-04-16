@@ -47,11 +47,15 @@ class Puck(Circle):
                 coll_time = coll_times[min_pos]
 
                 if coll_time < 0:
-                    print("Error: computed collision in past")
+                    # Weird paddle movement happened
+                    # Pretend that the paddle doesn't exist
+                    collidables[min_pos].ghost = True
+                    continue
 
-                new_loc = self.location + (coll_time * self.velocity)
-                new_vel = collidables[min_pos].collide_velocity(self, new_loc)
-                time_left = time_left - coll_time 
+                else:
+                    new_loc = self.location + (coll_time * self.velocity)
+                    new_vel = collidables[min_pos].collide_velocity(self, new_loc)
+                    time_left = time_left - coll_time 
 
             self.location = new_loc
             self.velocity = new_vel
