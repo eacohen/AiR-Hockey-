@@ -7,14 +7,20 @@
 # collision with the object
 
 import math
+import vector
 
 # Fraction of velocity puck retains in a collision with a wall
 wall_coll_const = .95
 
-# Returns velocity of object with velocity v after collision with wall
+# Returns velocity of object with velocity v after collision with horizontal wall
 # with collision constant coll_const
 def collide_horz(v, coll_const):
-    return Vector(-coll_Const*v.x, v.y)
+    return vector.Vector(-coll_const*v.x, v.y)
+
+# Returns velocity of object with velocity v after collision with vertical wall
+# with collision constant coll_const
+def collide_vert(v, coll_const):
+    return vector.Vector(v.x, -coll_const*v.y)
 
 # Left facing infinite vertical wall
 class Wall_Vert_Left_Inf:
@@ -50,7 +56,7 @@ class Wall_Vert_Right_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz() * wall_coll_const
+        return collide_horz(puck.velocity, wall_coll_const)
 
 # Up facing infinite horizontal wall
 class Wall_Horz_Up_Inf:
@@ -68,7 +74,7 @@ class Wall_Horz_Up_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert() * wall_coll_const
+        return collide_vert(puck.velocity, wall_coll_const)
 
 # Down facing infinite horizontal wall
 class Wall_Horz_Down_Inf:
@@ -86,7 +92,7 @@ class Wall_Horz_Down_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert() * wall_coll_const
+        return collide_vert(puck.velocity, wall_coll_const)
 
 # Left facing finite vertical wall
 class Wall_Vert_Left:
@@ -114,7 +120,7 @@ class Wall_Vert_Left:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz() * wall_coll_const
+        return collide_horz(puck.velocity, wall_coll_const)
 
 # Left facing finite vertical wall
 class Wall_Vert_Right:
@@ -142,7 +148,7 @@ class Wall_Vert_Right:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz() * wall_coll_const
+        return collide_horz(puck.velocity, wall_coll_const)
 
 # Up facing finite horizontal wall
 class Wall_Horz_Up:
@@ -170,7 +176,7 @@ class Wall_Horz_Up:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert() * wall_coll_const
+        return collide_vert(puck.velocity, wall_coll_const)
 
 # Down facing finite horizontal wall
 class Wall_Horz_Down:
@@ -198,7 +204,7 @@ class Wall_Horz_Down:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_vert() * wall_coll_const
+        return collide_vert(puck.velocity, wall_coll_const)
 
 class Circle:
 
@@ -207,6 +213,7 @@ class Circle:
         self.radius = radius
         # Object can't collide 
         self.ghost = False
+        self.coll_const = wall_coll_const
 
     # Note: the following webpage was helpful when working out the math of 
     # this function. Reading it may help when following this algorithm
