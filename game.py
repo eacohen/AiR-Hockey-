@@ -7,7 +7,7 @@ from collidables import *
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
 # Pixels per millimeter
-pix_per_mm = .3 
+pix_per_mm = .45 
 # Clock frequency in hertz
 clock_freq = 120
 

@@ -264,7 +264,7 @@ class Circle:
     def collide_velocity(self, obj2, coll_point):
 
         coll_normal = self.location - obj2.location
-        self_v_proj = self.velocity.projection(coll_normal)
+        self_v_proj = 1.0 * self.velocity.projection(coll_normal)
         obj2_v_proj = obj2.velocity.projection(coll_normal)
 
         obj2_impulse = (1 + self.coll_const) * (self_v_proj - obj2_v_proj)
