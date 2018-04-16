@@ -70,7 +70,7 @@ class Paddle(Circle):
         self.color = color
         self.ghost = False
         self.velocity = Vector(0, 0)
-        self.coll_const = wall_coll_const 
+        self.coll_const = .8 
     
     # Update the location from a mouse position
     def start_move(self, new_pos, arena, puck):
@@ -78,7 +78,6 @@ class Paddle(Circle):
         self.new_location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) \
                             - Vector(arena.border_width, arena.border_width)
         self.velocity = clock_freq * (self.new_location - self.location) 
-
 
         if not self.ghost:
             # The paddle can't collide with the puck while its ghost, in order
