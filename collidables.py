@@ -11,6 +11,11 @@ import math
 # Fraction of velocity puck retains in a collision with a wall
 wall_coll_const = .95
 
+# Returns velocity of object with velocity v after collision with wall
+# with collision constant coll_const
+def collide_horz(v, coll_const):
+    return Vector(-coll_Const*v.x, v.y)
+
 # Left facing infinite vertical wall
 class Wall_Vert_Left_Inf:
 
@@ -27,7 +32,7 @@ class Wall_Vert_Left_Inf:
 
     def collide_velocity(self, puck, coll_point):
         
-        return puck.velocity.flip_horz() * wall_coll_const
+        return collide_horz(puck.velocity, wall_coll_const)
 
 # Right facing infinite vertical wall
 class Wall_Vert_Right_Inf:
