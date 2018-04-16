@@ -10,7 +10,7 @@ import math
 import vector
 
 # Fraction of velocity puck retains in a collision with a wall
-wall_coll_const = .95
+wall_coll_const = .90
 
 # Returns velocity of object with velocity v after collision with horizontal wall
 # with collision constant coll_const
@@ -268,8 +268,12 @@ class Circle:
         obj2_v_proj = obj2.velocity.projection(coll_normal)
 
         obj2_impulse = (1 + self.coll_const) * (self_v_proj - obj2_v_proj)
-        return obj2.velocity + obj2_impulse
+        new_vel = obj2.velocity + obj2_impulse
 
+        if (new_vel.mag() > obj2.max_velocity):
+            new_vel = new_vel.normalize() * obj2.max_velocity 
+
+        return new_vel
 
     # Is the obj2 passing through this circle?
     def intersecting(self, c2):

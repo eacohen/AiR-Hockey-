@@ -20,6 +20,7 @@ class Puck(Circle):
         self.velocity = velocity
         self.radius = radius
         self.ghost = False
+        self.max_velocity = 10000
 
     # Update location by one clock cycle
     def move(self, collidables):
