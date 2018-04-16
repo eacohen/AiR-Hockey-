@@ -16,8 +16,10 @@ class Puck(Circle):
     color = (183, 4, 4)
 
     def __init__(self, location, velocity, radius):
-        self.location = location
-        self.velocity = velocity
+        self.base_location = location
+        self.base_velocity = velocity
+        self.location = self.base_location
+        self.velocity = self.base_velocity
         self.radius = radius
         self.ghost = False
         self.max_velocity = 10000
@@ -53,7 +55,6 @@ class Puck(Circle):
 
             self.location = new_loc
             self.velocity = new_vel
-
 
 
     # Draw on screen
@@ -161,7 +162,8 @@ class Game:
         pygame.init()
 
         self.arena = Arena()
-        self.puck = Puck(Vector(60, 60), Vector.polar(1000, pi/6), 50)
+        self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
+                         Vector(0,0), 50)
         self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, (65, 5, 5))
         self.clock = pygame.time.Clock()
@@ -264,6 +266,7 @@ def game_run():
         game.clock.tick(clock_freq)
         pygame.display.flip()
 
+        # Compute goals
         if game.puck.location.x > game.arena.x_len + game.arena.border_width or \
            game.puck.location.x < -game.arena.border_width:
             # Goal scored
@@ -272,7 +275,8 @@ def game_run():
             for i in range(0, 30):
                 game.clock.tick(clock_freq)
 
-            game.puck.location = Vector(200, 200)
+            game.puck.location = game.puck.base_location
+            game.puck.velocity = game.puck.base_velocity
 
 clock = pygame.time.Clock()
 
