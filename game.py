@@ -13,7 +13,7 @@ clock_freq = 120
 
 class Puck(Circle):
 
-    color = (183, 4, 4)
+    color = (255, 4, 4)
 
     def __init__(self, location, velocity, radius):
         self.base_location = location
@@ -118,8 +118,8 @@ class Paddle(Circle):
 class Arena:
 
     border_width = 100 
-    border_color = (100, 52, 4)
-    space_color = (245, 221, 105)
+    border_color = (10, 15, 176)
+    space_color = (255,255,255)
 
     x_len = 3000
     y_len = 1000
@@ -159,6 +159,15 @@ class Arena:
                                  mm_to_pix(self.goal_width))
         pygame.draw.rect(self.screen, self.space_color, goal_left)
 
+        # Draw middle line
+        mid_line_width = 50
+        mid_line = pygame.Rect(mm_to_pix(self.border_width + (self.x_len - mid_line_width)/2),
+                               mm_to_pix(self.border_width),
+                               mm_to_pix(mid_line_width),
+                               mm_to_pix(self.y_len))
+        pygame.draw.rect(self.screen, (0,0,0), mid_line)
+
+
 class Game:
 
     def __init__(self):
@@ -168,8 +177,9 @@ class Game:
         self.arena = Arena()
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
-        self.paddle_1 = Paddle(Vector(300, 300), 70, (65, 5, 5))
-        self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, (65, 5, 5))
+        paddle_color = (196, 0, 0)
+        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color)
+        self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color)
         self.clock = pygame.time.Clock()
 
         # Very small corner circle radius
