@@ -7,7 +7,7 @@ from collidables import *
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
 # Pixels per millimeter
-pix_per_mm = .45 
+pix_per_mm = .3 
 # Clock frequency in hertz
 clock_freq = 120
 
@@ -59,6 +59,16 @@ class Puck(Circle):
 
             self.location = new_loc
             self.velocity = new_vel
+
+    # has a goal just been scored
+    def is_goal(self, arena):
+        return self.location.x > arena.x_len + arena.border_width \
+               or self.location.x < -arena.border_width
+
+    # Reset position 
+    def reset(self):
+        self.location = self.base_location
+        self.velocity = self.base_velocity
 
 
     # Draw on screen
@@ -281,16 +291,14 @@ def game_run():
         pygame.display.flip()
 
         # Compute goals
-        if game.puck.location.x > game.arena.x_len + game.arena.border_width or \
-           game.puck.location.x < -game.arena.border_width:
+        if  game.puck.is_goal(game.arena):
             # Goal scored
             # Wait and reset puck
 
             for i in range(0, 30):
                 game.clock.tick(clock_freq)
 
-            game.puck.location = game.puck.base_location
-            game.puck.velocity = game.puck.base_velocity
+            game.puck.reset()
 
 clock = pygame.time.Clock()
 
