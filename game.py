@@ -80,13 +80,15 @@ class Puck(Circle):
 
 class Paddle(Circle):
 
-    def __init__(self, location, radius, color):
+    def __init__(self, location, radius, color, left):
         self.location = location 
         self.radius = radius
         self.color = color
         self.ghost = False
         self.velocity = Vector(0, 0)
         self.coll_const = .8 
+        # Is left paddle
+        self.left = left
     
     # Update the location from a mouse position
     def start_move(self, new_pos, arena, puck):
@@ -106,17 +108,29 @@ class Paddle(Circle):
 
                 # The paddle will collide with the puck
                 self.location = self.location + puck_coll_time * self.velocity
-                puck.velocity = self.collide_velocity(puck, puck.location)
 
+                if self.over_line(arena):
+                    self.ghost = True
+                else:
+                    puck.velocity = self.collide_velocity(puck, puck.location)
 
             else:
                 self.location = self.new_location
         else:
             self.location = self.new_location
 
+        if self.over_line(arena):
+            self.ghost = True
+
     def end_move(self, arena, puck):
         self.location = self.new_location
-        self.ghost = self.intersecting(puck)
+        self.ghost = self.intersecting(puck) or self.over_line(arena)
+
+    def over_line(self, arena):
+        if self.left:
+            return (self.location.x + self.radius) > (arena.x_len + arena.mid_line_width)/2
+        else:
+            return (self.location.x - self.radius) < (arena.x_len - arena.mid_line_width)/2
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
@@ -140,6 +154,8 @@ class Arena:
 
     screen_x = x_len + 2 * border_width
     screen_y = y_len + 2 * border_width
+
+    mid_line_width = 50
 
 
     def __init__(self):
@@ -170,10 +186,10 @@ class Arena:
         pygame.draw.rect(self.screen, self.space_color, goal_left)
 
         # Draw middle line
-        mid_line_width = 50
-        mid_line = pygame.Rect(mm_to_pix(self.border_width + (self.x_len - mid_line_width)/2),
+        mid_line = pygame.Rect(mm_to_pix(self.border_width \
+                               + (self.x_len - self.mid_line_width)/2),
                                mm_to_pix(self.border_width),
-                               mm_to_pix(mid_line_width),
+                               mm_to_pix(self.mid_line_width),
                                mm_to_pix(self.y_len))
         pygame.draw.rect(self.screen, (0,0,0), mid_line)
 
@@ -188,8 +204,8 @@ class Game:
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
         paddle_color = (196, 0, 0)
-        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color)
-        self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color)
+        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, False)
+        self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
         self.clock = pygame.time.Clock()
 
         # Very small corner circle radius
