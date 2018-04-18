@@ -60,16 +60,22 @@ class Puck(Circle):
             self.location = new_loc
             self.velocity = new_vel
 
-    # has a goal just been scored
-    def is_goal(self, arena):
-        return self.location.x > arena.x_len + arena.border_width \
-               or self.location.x < -arena.border_width
+    # Has a goal just been scored?
+    # Returns false if no goal, -1 if left goal, 1  if right goal
+    def goal(self, arena):
+
+        if self.location.x > arena.x_len + arena.border_width:
+            # Left scores
+            return -1 
+        if self.location.x < -arena.border_width:
+            # Right scores
+            return 1 
+        return False
 
     # Reset position 
     def reset(self):
         self.location = self.base_location
         self.velocity = self.base_velocity
-
 
     # Draw on screen
     def draw(self, arena):
@@ -207,6 +213,9 @@ class Game:
         self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, False)
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
         self.clock = pygame.time.Clock()
+        
+        # (left score, right score)
+        self.score = (0,0)
 
         # Very small corner circle radius
         bcirc_r = 10
@@ -275,6 +284,18 @@ class Game:
         for drawable in self.drawables:
             drawable.draw(self.arena)
 
+    def update_score(self, goal):
+        (left_score, right_score) = self.score
+        if goal < 0:
+            left_score = left_score + 1
+        elif goal > 0:
+            right_score = right_score + 1
+        self.score = (left_score, right_score)
+
+    def reset(self):
+        self.puck.reset()
+        self.score = (0,0) 
+
 def mm_to_pix(mm):
     return int(mm * pix_per_mm)
 
@@ -296,6 +317,12 @@ def game_run():
                 game_running = False
             elif event.type == pygame.MOUSEMOTION:
                 game.paddle_1.start_move(event.pos, game.arena, game.puck) 
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    game_running = False
+                if event.key == pygame.K_r:
+                    # Reset game 
+                    game.reset()
 
         game.puck.move(game.collidables)
 
@@ -307,10 +334,13 @@ def game_run():
         pygame.display.flip()
 
         # Compute goals
-        if  game.puck.is_goal(game.arena):
+        goal = game.puck.goal(game.arena)
+        if goal:
             # Goal scored
-            # Wait and reset puck
+            game.update_score(goal)
+            print(game.score)
 
+            # Wait and reset puck
             for i in range(0, 30):
                 game.clock.tick(clock_freq)
 
