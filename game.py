@@ -115,7 +115,7 @@ class Paddle(Circle):
                 # The paddle will collide with the puck
                 self.location = self.location + puck_coll_time * self.velocity
 
-                if self.over_line(arena):
+                if self.invalid_loc(arena):
                     self.ghost = True
                 else:
                     puck.velocity = self.collide_velocity(puck, puck.location)
@@ -125,18 +125,35 @@ class Paddle(Circle):
         else:
             self.location = self.new_location
 
-        if self.over_line(arena):
+        if self.invalid_loc(arena):
             self.ghost = True
 
     def end_move(self, arena, puck):
         self.location = self.new_location
-        self.ghost = self.intersecting(puck) or self.over_line(arena)
+        self.ghost = self.intersecting(puck) or self.invalid_loc(arena)
 
-    def over_line(self, arena):
+    # Paddle in a position where it shouldn't hit the puck 
+    def invalid_loc(self, arena):
+
+        # Is the paddle over the center line
         if self.left:
-            return (self.location.x + self.radius) > (arena.x_len + arena.mid_line_width)/2
+            if (self.location.x + self.radius) > (arena.x_len + arena.mid_line_width)/2:
+                return True 
         else:
-            return (self.location.x - self.radius) < (arena.x_len - arena.mid_line_width)/2
+            if (self.location.x - self.radius) < (arena.x_len - arena.mid_line_width)/2:
+                return True
+
+        # Paddle over borders
+        if self.location.x < self.radius:
+            return True
+        if self.location.x > arena.x_len - self.radius:
+            return True
+        if self.location.y < self.radius:
+            return True
+        if self.location.y > arena.y_len - self.radius:
+            return True
+
+        return False
 
     def draw(self, arena):
         pygame.draw.circle(arena.screen, self.color, 
@@ -210,7 +227,7 @@ class Game:
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
         paddle_color = (196, 0, 0)
-        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, False)
+        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, True)
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
         self.clock = pygame.time.Clock()
         
