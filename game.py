@@ -223,11 +223,12 @@ class Game:
 
         pygame.init()
 
+        self.win_score = 7
         self.arena = Arena()
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
         paddle_color = (196, 0, 0)
-        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, True)
+        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, False)
         self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
         self.clock = pygame.time.Clock()
         
@@ -309,6 +310,14 @@ class Game:
             right_score = right_score + 1
         self.score = (left_score, right_score)
 
+    def check_win(self):
+        (left_score, right_score) = self.score
+        if left_score >= self.win_score:
+            return -1
+        if right_score >= self.win_score:
+            return 1
+        return None
+
     def reset(self):
         self.puck.reset()
         self.score = (0,0) 
@@ -357,11 +366,20 @@ def game_run():
             game.update_score(goal)
             print(game.score)
 
+            winner = game.check_win()
+
             # Wait and reset puck
             for i in range(0, 30):
                 game.clock.tick(clock_freq)
 
-            game.puck.reset()
+            if winner:
+                if winner < 0:
+                    print("Left wins!!!")
+                elif winner > 0: 
+                    print("Right wins!!!")
+                game.reset()
+            else:
+                game.puck.reset()
 
 clock = pygame.time.Clock()
 
