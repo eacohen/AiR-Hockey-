@@ -1,4 +1,5 @@
 import pygame
+import os
 import util
 from vector import Vector
 from math import pi
@@ -335,52 +336,60 @@ def game_run():
 
     game_running = True
 
-    while game_running:
+    with open(FIFO, mode='rb') as fifo:
+        while game_running:
+            data = fifo.read(4)
+            print(data)
+            print(type(data))
+            num = int.from_bytes(data, byteorder="little")
+            n = len(data);
+            print("data length is " + str(n));
+            print("Received: " + str(num));
 
-        game.paddle_1.velocity = Vector(0,0)
+            game.paddle_1.velocity = Vector(0,0)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_running = False
-            elif event.type == pygame.MOUSEMOTION:
-                game.paddle_1.start_move(event.pos, game.arena, game.puck) 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     game_running = False
-                if event.key == pygame.K_r:
-                    # Reset game 
+                elif event.type == pygame.MOUSEMOTION:
+                    game.paddle_1.start_move(event.pos, game.arena, game.puck) 
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_running = False
+                    if event.key == pygame.K_r:
+                        # Reset game 
+                        game.reset()
+
+            game.puck.move(game.collidables)
+
+            game.paddle_1.end_move(game.arena, game.puck)
+
+            game.draw()
+
+            game.clock.tick(clock_freq)
+            pygame.display.flip()
+
+            # Compute goals
+            goal = game.puck.goal(game.arena)
+            if goal:
+                # Goal scored
+                game.update_score(goal)
+                print(game.score)
+
+                winner = game.check_win()
+
+                # Wait and reset puck
+                for i in range(0, 30):
+                    game.clock.tick(clock_freq)
+
+                if winner:
+                    if winner < 0:
+                        print("Left wins!!!")
+                    elif winner > 0: 
+                        print("Right wins!!!")
                     game.reset()
-
-        game.puck.move(game.collidables)
-
-        game.paddle_1.end_move(game.arena, game.puck)
-
-        game.draw()
-
-        game.clock.tick(clock_freq)
-        pygame.display.flip()
-
-        # Compute goals
-        goal = game.puck.goal(game.arena)
-        if goal:
-            # Goal scored
-            game.update_score(goal)
-            print(game.score)
-
-            winner = game.check_win()
-
-            # Wait and reset puck
-            for i in range(0, 30):
-                game.clock.tick(clock_freq)
-
-            if winner:
-                if winner < 0:
-                    print("Left wins!!!")
-                elif winner > 0: 
-                    print("Right wins!!!")
-                game.reset()
-            else:
-                game.puck.reset()
+                else:
+                    game.puck.reset()
 
 clock = pygame.time.Clock()
 
