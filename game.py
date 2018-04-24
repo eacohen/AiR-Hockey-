@@ -7,7 +7,7 @@ from collidables import *
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
 
 # Pixels per millimeter
-pix_per_mm = .3 
+pix_per_mm = .45
 # Clock frequency in hertz
 clock_freq = 120
 
@@ -185,8 +185,9 @@ class Arena:
 
         self.screen = pygame.display.set_mode((mm_to_pix(self.screen_x), 
                                                mm_to_pix(self.screen_y)))
+        self.score_font = pygame.font.SysFont('foootlight', 40)
 
-    def draw(self):
+    def draw(self, score):
         borders = pygame.Rect(0, 0, mm_to_pix(self.screen_x), mm_to_pix(self.screen_y))
         pygame.draw.rect(self.screen, self.border_color, borders)
 
@@ -215,6 +216,17 @@ class Arena:
                                mm_to_pix(self.mid_line_width),
                                mm_to_pix(self.y_len))
         pygame.draw.rect(self.screen, (0,0,0), mid_line)
+
+        # Draw scores
+        (l_score, r_score) = score
+        r_score_txt = self.score_font.render(str(r_score), True, (0, 128, 0))
+        l_score_txt = self.score_font.render(str(l_score), True, (0, 128, 0))
+
+        r_score_r = pygame.transform.rotate(r_score_txt, 90)
+
+        self.screen.blit(r_score_r,
+                    (mm_to_pix(self.screen_x/2) - r_score_txt.get_width()/2, 240 - r_score_txt.get_height()))
+        
 
 
 class Game:
@@ -297,7 +309,7 @@ class Game:
 
     def draw(self):
         self.arena.screen.fill((0, 0, 0))
-        self.arena.draw()
+        self.arena.draw(self.score)
 
         for drawable in self.drawables:
             drawable.draw(self.arena)
