@@ -269,10 +269,10 @@ class Arena:
         self.screen.blit(r_score_r,
                     (mm_to_pix(self.mid_right_b) - l_score_r.get_width()/2,
                      mm_to_pix(self.mid_bot_b) - l_score_r.get_height()/2))
-        self.screen.blit(r_score_l,
+        self.screen.blit(l_score_l,
                     (mm_to_pix(self.mid_left_b) - l_score_r.get_width()/2,
                      mm_to_pix(self.mid_top_b) - l_score_r.get_height()/2))
-        self.screen.blit(l_score_l,
+        self.screen.blit(r_score_l,
                     (mm_to_pix(self.mid_left_b) - l_score_r.get_width()/2,
                      mm_to_pix(self.mid_bot_b) - l_score_r.get_height()/2))
 
