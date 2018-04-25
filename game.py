@@ -88,6 +88,7 @@ class Paddle(Circle):
 
     def __init__(self, location, radius, color, left):
         self.location = location 
+        self.new_location = Vector(0, 0)
         self.radius = radius
         self.color = color
         self.ghost = False
