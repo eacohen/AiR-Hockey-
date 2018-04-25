@@ -207,6 +207,18 @@ class Arena:
                         [(self.tri_right_left, self.mid_top_b),
                          (self.tri_right_right, self.mid_top_b + self.tri_width/2),
                          (self.tri_right_right, self.mid_top_b - self.tri_width/2)]]
+        self.top_left_tri = [(mm_to_pix(a), mm_to_pix(b)) for (a,b) in
+                        [(self.tri_left_left, self.mid_top_b),
+                         (self.tri_left_right, self.mid_top_b + self.tri_width/2),
+                         (self.tri_left_right, self.mid_top_b - self.tri_width/2)]]
+        self.bot_right_tri = [(mm_to_pix(a), mm_to_pix(b)) for (a,b) in
+                        [(self.tri_right_right, self.mid_bot_b),
+                         (self.tri_right_left, self.mid_bot_b + self.tri_width/2),
+                         (self.tri_right_left, self.mid_bot_b - self.tri_width/2)]]
+        self.bot_left_tri = [(mm_to_pix(a), mm_to_pix(b)) for (a,b) in
+                        [(self.tri_left_right, self.mid_bot_b),
+                         (self.tri_left_left, self.mid_bot_b + self.tri_width/2),
+                         (self.tri_left_left, self.mid_bot_b - self.tri_width/2)]]
 
     def draw(self, score):
         borders = pygame.Rect(0, 0, mm_to_pix(self.screen_x), mm_to_pix(self.screen_y))
@@ -216,6 +228,7 @@ class Arena:
                                  mm_to_pix(self.border_width),
                                  mm_to_pix(self.x_len), 
                                  mm_to_pix(self.y_len))
+
         pygame.draw.rect(self.screen, self.space_color, cent_arena)
         
         goal_right = pygame.Rect(mm_to_pix(self.border_width + self.x_len), 
@@ -245,12 +258,27 @@ class Arena:
         l_score_txt = self.score_font.render(str(l_score), True, score_color)
 
         l_score_r = pygame.transform.rotate(l_score_txt, 90)
+        l_score_l = pygame.transform.rotate(l_score_txt, -90)
+        r_score_r = pygame.transform.rotate(r_score_txt, 90)
+        r_score_l = pygame.transform.rotate(r_score_txt, -90)
 
         self.screen.blit(l_score_r,
-                    (mm_to_pix(self.mid_right_b) - r_score_txt.get_height()/2,
-                     mm_to_pix(self.mid_top_b) - r_score_txt.get_width()/2))
+                    (mm_to_pix(self.mid_right_b) - l_score_r.get_width()/2,
+                     mm_to_pix(self.mid_top_b) - l_score_r.get_height()/2))
+        self.screen.blit(r_score_r,
+                    (mm_to_pix(self.mid_right_b) - l_score_r.get_width()/2,
+                     mm_to_pix(self.mid_bot_b) - l_score_r.get_height()/2))
+        self.screen.blit(r_score_l,
+                    (mm_to_pix(self.mid_left_b) - l_score_r.get_width()/2,
+                     mm_to_pix(self.mid_top_b) - l_score_r.get_height()/2))
+        self.screen.blit(l_score_l,
+                    (mm_to_pix(self.mid_left_b) - l_score_r.get_width()/2,
+                     mm_to_pix(self.mid_bot_b) - l_score_r.get_height()/2))
 
         pygame.draw.polygon(self.screen, score_color, self.top_right_tri)
+        pygame.draw.polygon(self.screen, score_color, self.top_left_tri)
+        pygame.draw.polygon(self.screen, score_color, self.bot_right_tri)
+        pygame.draw.polygon(self.screen, score_color, self.bot_left_tri)
 
 
 class Game:
