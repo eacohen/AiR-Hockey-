@@ -125,11 +125,11 @@ int main(int argc, char *argv[])
   libfreenect2::FrameMap frames;
 
   // Setup the color image window
-  int window_width = 540;
-  int window_len = 960;
+  int window_height = 1080;
+  int window_width = 1920;
   cv::namedWindow("Color Image",CV_WINDOW_NORMAL) ;
-  cv::resizeWindow("Color Image",window_len/2,window_width/2) ;
-  cv::moveWindow("Color Image",window_len/2,32) ;
+  cv::resizeWindow("Color Image",window_width/2,window_height/2) ;
+  cv::moveWindow("Color Image",window_width/2,32) ;
 
   //cv::namedWindow("left", CV_WINDOW_NORMAL);
   //cv::resizeWindow("left", 960/2, 1080/2);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   int prevYLeft = -1;
   int prevXRight = -1;
   int prevYRight = -1;
-  cv::Mat imgLines = cv::Mat::zeros(window_width, window_len, CV_8UC3);
+  cv::Mat imgLines = cv::Mat::zeros(window_height, window_width, CV_8UC3);
 
   while(!protonect_shutdown)
   {
@@ -179,11 +179,10 @@ int main(int argc, char *argv[])
    printf("IFNDEF TAKEN!\n");
 #else
     unsigned char **pprgba = reinterpret_cast<unsigned char **>(rgb->data);
-    cv::Mat rgba(window_width, window_len, CV_8UC4, pprgba[0]);
-    cv::Mat rgbmat(window_width, window_len, CV_8UC3);
+    cv::Mat rgba(window_height, window_width, CV_8UC4, pprgba[0]);
+    cv::Mat rgbmat(window_height, window_width, CV_8UC3);
     cv::cvtColor(rgba, rgbmat, cv::COLOR_RGBA2RGB);
-
-    cv::Mat hsv(window_width, window_len, CV_8UC3);
+    cv::Mat hsv(window_height, window_width, CV_8UC3);
     cv::cvtColor(rgbmat, hsv, cv::COLOR_RGB2HSV);
     cv::Mat mask_hsv, result_hsv;
     cv::Mat lower_red, upper_red;
@@ -191,7 +190,7 @@ int main(int argc, char *argv[])
    cv::inRange(hsv, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_red);
     //cv::addWeighted(lower_red, 1.0, upper_red, 1.0, 0.0, mask_hsv);
     cv::bitwise_and(hsv, hsv, result_hsv, upper_red);
-    cv::Mat bgr(window_width, window_len, CV_8UC3);
+    cv::Mat bgr(window_height, window_width, CV_8UC3);
     cv::cvtColor(rgbmat, bgr, cv::COLOR_RGB2BGR);
 
     //cv::imshow("Color Image", bgr);
@@ -202,8 +201,8 @@ int main(int argc, char *argv[])
     
     //cv::findContours(upper_red, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     
-    leftImage = upper_red(cv::Rect(0,0,window_len/2,window_width));
-    rightImage = upper_red(cv::Rect(window_len/2,0,window_len/2,window_width));
+    leftImage = upper_red(cv::Rect(0,0,window_width/2,window_height));
+    rightImage = upper_red(cv::Rect(window_width/2,0,window_width/2,window_height));
     cv::Moments momLeft, momRight;
     //mom = cv::moments(upper_red);
     momLeft = cv::moments(leftImage);
@@ -241,7 +240,7 @@ int main(int argc, char *argv[])
         int posY = rightM01 / rightArea;
         if (prevXRight >= 0 && prevYRight >=0 && posX >=0 && posY >=0) {
             //printf("Paddle  at (%d, %d)\n", posX, posY);
-            cv::line(imgLines, Point(posX+window_len/2, posY), Point(prevXRight+window_len/2, prevYRight), Scalar(255,0,255), 4);
+            cv::line(imgLines, Point(posX+window_width/2, posY), Point(prevXRight+window_width/2, prevYRight), Scalar(255,0,255), 4);
         }
         prevXRight = posX;
         prevYRight = posY;
