@@ -34,6 +34,12 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <math.h>
 
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/contrib/contrib.hpp>
 
@@ -41,7 +47,14 @@
 #include <libfreenect2/frame_listener_impl.h>
 #include <libfreenect2/threading.h>
 
+#define COORD_MASK 0xfff 
+#define COORD_BITS 12
+#define XCOORD_OFFSET 12
+#define PID_OFFSET 24
+
 bool protonect_shutdown = false;
+
+
 
 using namespace cv;
 using namespace std;
@@ -132,6 +145,12 @@ int main(int argc, char *argv[])
   dev->start();
 
 
+  // setup named fifos
+  int fd;
+  char *fifo = "/tmp/fifo";
+  mkfifo(fifo, 0666);
+  int p1Data = -1;
+  int p2Data = -1;
 
 
   std::cout << "device serial: " << dev->getSerialNumber() << std::endl;
@@ -197,6 +216,9 @@ int main(int argc, char *argv[])
     double rightM10 = momRight.m10;
     double rightArea = momRight.m00;
 
+    p1Data = (1 << PID_OFFSET) | (COORD_MASK << XCOORD_OFFSET) | (COORD_MASK); 
+    p2Data = (2 << PID_OFFSET) | (COORD_MASK << XCOORD_OFFSET) | (COORD_MASK);
+
     if (leftArea > 10000) {
         
         int posX = leftM10 / leftArea;
@@ -208,6 +230,8 @@ int main(int argc, char *argv[])
         }
         prevXLeft = posX;
         prevYLeft = posY;
+        //update transmitted data (player#, x coord, y coord)
+        p1Data = (1 << PID_OFFSET) ((posX & COORD_MASK) << XCOORD_OFFSET) |(posY & COORD_MASK);
     }
 
     if (rightArea > 10000) {
@@ -220,7 +244,13 @@ int main(int argc, char *argv[])
         }
         prevXRight = posX;
         prevYRight = posY;
+        //update transmitted data (player#, x coord, y coord)
+        p2Data = (2 << PID_OFFSET) ((posX & COORD_MASK) << XCOORD_OFFSET) |(posY & COORD_MASK);
     }
+
+    //send data to game
+    write(fd, &p1Data, 4);
+    write(fd, &p2Data, 4);
     
     bgr = imgLines + bgr;
     //result_hsv = result_hsv + imgLines;
