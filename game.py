@@ -2,6 +2,7 @@ import pygame
 import os
 import util
 import threading
+import queue
 from vector import Vector
 from math import pi
 from collidables import *
@@ -333,20 +334,14 @@ def mm_to_pix(mm):
 def pix_to_mm(pix):
     return pix / pix_per_mm
 
+# Input queue
+# Series of paddle location location updates
+# (Paddle number [1 or 2], paddle x, paddle y)
 # Run by separate thread to update to update location
-def paddle_locator(paddle_lock):
-    with open(FIFO, mode='rb') as fifo:
-        while True:
-            paddle_lock.acquire()
-            #data = fifo.read(4)
-            #print(data)
-            #print(type(data))
-            #num = int.from_bytes(data, byteorder="little")
-            #n = len(data);
-            #print("data length is " + str(n));
-            #print("Received: " + str(num));
-            #print(a)
-            paddle_lock.release()
+def paddle_locator(input_queue):
+    #with open(FIFO, mode='rb') as fifo:
+    while True:
+        input_queue.put(input())
 
 def game_run():
     
@@ -354,8 +349,8 @@ def game_run():
 
     game_running = True
 
-    paddle_lock = threading.Lock()
-    input_thread = threading.Thread(target=paddle_locator, args=(paddle_lock,))
+    input_queue = queue.Queue(maxsize=0) 
+    input_thread = threading.Thread(target=paddle_locator, args=(input_queue,))
     input_thread.daemon = True
     input_thread.start()
 
@@ -374,6 +369,9 @@ def game_run():
                 if event.key == pygame.K_r:
                     # Reset game 
                     game.reset()
+
+        while(not input_queue.empty()):
+            print(input_queue.get())
 
         game.puck.move(game.collidables)
 
