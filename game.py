@@ -1,11 +1,14 @@
 import pygame
 import os
 import util
+import threading
 from vector import Vector
 from math import pi
 from collidables import *
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
+
+FIFO = 'fifo'
 
 # Pixels per millimeter
 pix_per_mm = .3 
@@ -330,66 +333,75 @@ def mm_to_pix(mm):
 def pix_to_mm(pix):
     return pix / pix_per_mm
 
+# Run by separate thread to update to update location
+def paddle_locator(paddle_lock):
+    with open(FIFO, mode='rb') as fifo:
+        data = fifo.read(4)
+        print(data)
+        print(type(data))
+        num = int.from_bytes(data, byteorder="little")
+        n = len(data);
+        print("data length is " + str(n));
+        print("Received: " + str(num));
+        print(a)
+
 def game_run():
     
     game = Game()
 
     game_running = True
 
-    with open(FIFO, mode='rb') as fifo:
-        while game_running:
-            data = fifo.read(4)
-            print(data)
-            print(type(data))
-            num = int.from_bytes(data, byteorder="little")
-            n = len(data);
-            print("data length is " + str(n));
-            print("Received: " + str(num));
+    paddle_lock = threading.Lock()
+    input_thread = threading.Thread(target=paddle_locator, args=(paddle_lock,))
+    input_thread.daemon = True
+    input_thread.start()
 
-            game.paddle_1.velocity = Vector(0,0)
+    while game_running:
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        game.paddle_1.velocity = Vector(0,0)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_running = False
+            elif event.type == pygame.MOUSEMOTION:
+                game.paddle_1.start_move(event.pos, game.arena, game.puck) 
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
                     game_running = False
-                elif event.type == pygame.MOUSEMOTION:
-                    game.paddle_1.start_move(event.pos, game.arena, game.puck) 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_running = False
-                    if event.key == pygame.K_r:
-                        # Reset game 
-                        game.reset()
-
-            game.puck.move(game.collidables)
-
-            game.paddle_1.end_move(game.arena, game.puck)
-
-            game.draw()
-
-            game.clock.tick(clock_freq)
-            pygame.display.flip()
-
-            # Compute goals
-            goal = game.puck.goal(game.arena)
-            if goal:
-                # Goal scored
-                game.update_score(goal)
-                print(game.score)
-
-                winner = game.check_win()
-
-                # Wait and reset puck
-                for i in range(0, 30):
-                    game.clock.tick(clock_freq)
-
-                if winner:
-                    if winner < 0:
-                        print("Left wins!!!")
-                    elif winner > 0: 
-                        print("Right wins!!!")
+                if event.key == pygame.K_r:
+                    # Reset game 
                     game.reset()
-                else:
-                    game.puck.reset()
+
+        game.puck.move(game.collidables)
+
+        game.paddle_1.end_move(game.arena, game.puck)
+
+        game.draw()
+
+        game.clock.tick(clock_freq)
+        pygame.display.flip()
+
+        # Compute goals
+        goal = game.puck.goal(game.arena)
+        if goal:
+            # Goal scored
+            game.update_score(goal)
+            print(game.score)
+
+            winner = game.check_win()
+
+            # Wait and reset puck
+            for i in range(0, 30):
+                game.clock.tick(clock_freq)
+
+            if winner:
+                if winner < 0:
+                    print("Left wins!!!")
+                elif winner > 0: 
+                    print("Right wins!!!")
+                game.reset()
+            else:
+                game.puck.reset()
 
 clock = pygame.time.Clock()
 
