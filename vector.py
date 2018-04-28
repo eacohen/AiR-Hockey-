@@ -20,6 +20,9 @@ class Vector:
     def __eq__(self, v2):
         return self.x == v2.x and self.y == v2.y
 
+    def __ne__(self, v2):
+        return self.x != v2.x or self.y != v2.y 
+
     def polar(mag, ang):
         return Vector(mag * math.cos(ang), mag * math.sin(ang))
 
