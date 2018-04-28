@@ -18,3 +18,24 @@ def min_pos(items):
                 min_pos = pos
 
     return min_pos
+
+            #data = fifo.read(4)
+            #print(data)
+            #print(type(data))
+            #num = int.from_bytes(data, byteorder="little")
+            #n = len(data);
+            #print("data length is " + str(n));
+            #print("Received: " + str(num));
+            #print(a)
+# Returns a number whose binary form consists of n 1's
+def bin_1(n):
+    return (1 << n) - 1
+
+
+# Converts raw data from the kinect fifo to queue data
+def kin_2_queue_dat(kin_in):
+    int_form = int.from_bytes(kin_in, byteorder="little")
+    y = int_form & bin_1(12)
+    x = (int_form >> 12) & bin_1(12)
+    paddle = (int_form >> 24) & bin_1(8)
+    return (paddle, x, y)
