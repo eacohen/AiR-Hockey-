@@ -339,24 +339,12 @@ def mm_to_pix(mm):
 def pix_to_mm(pix):
     return pix / pix_per_mm
 
-# Input queue
-# Series of paddle location location updates
-# (Paddle number [1 or 2], paddle x, paddle y)
-            #data = fifo.read(4)
-            #print(data)
-            #print(type(data))
-            #num = int.from_bytes(data, byteorder="little")
-            #n = len(data);
-            #print("data length is " + str(n));
-            #print("Received: " + str(num));
-            #print(a)
-
 
 # Run by separate thread to update to update location
 def paddle_locator(input_queue):
-    #with open(FIFO, mode='rb') as fifo:
-    while True:
-        input_queue.put((2,100,util.kin_2_queue_dat(input())))
+    with open(FIFO, mode='rb') as fifo:
+        while True:
+            input_queue.put(util.kin_2_queue_dat(fifo.read(4)))
 
 def game_run():
     

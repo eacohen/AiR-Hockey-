@@ -35,7 +35,7 @@ def bin_1(n):
 # Converts raw data from the kinect fifo to queue data
 def kin_2_queue_dat(kin_in):
     int_form = int.from_bytes(kin_in, byteorder="little")
-    y = int_form & bin_1(12)
-    x = (int_form >> 12) & bin_1(12)
+    y = 4 * (int_form & bin_1(12))
+    x = 4 * ((int_form >> 12) & bin_1(12))
     paddle = (int_form >> 24) & bin_1(8)
-    return (paddle, x, y)
+    return(paddle, x, y)
