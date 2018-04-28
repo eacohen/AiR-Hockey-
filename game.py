@@ -336,14 +336,17 @@ def pix_to_mm(pix):
 # Run by separate thread to update to update location
 def paddle_locator(paddle_lock):
     with open(FIFO, mode='rb') as fifo:
-        data = fifo.read(4)
-        print(data)
-        print(type(data))
-        num = int.from_bytes(data, byteorder="little")
-        n = len(data);
-        print("data length is " + str(n));
-        print("Received: " + str(num));
-        print(a)
+        while True:
+            paddle_lock.acquire()
+            #data = fifo.read(4)
+            #print(data)
+            #print(type(data))
+            #num = int.from_bytes(data, byteorder="little")
+            #n = len(data);
+            #print("data length is " + str(n));
+            #print("Received: " + str(num));
+            #print(a)
+            paddle_lock.release()
 
 def game_run():
     
