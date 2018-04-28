@@ -1,11 +1,15 @@
 import pygame
 import os
 import util
+import threading
+import queue
 from vector import Vector
 from math import pi
 from collidables import *
 
 # Source: https://math.stackexchange.com/questions/913350/how-to-find-the-intersection-point-of-two-moving-circles
+
+FIFO = 'fifo'
 
 # Pixels per millimeter
 pix_per_mm = .3 
@@ -103,34 +107,37 @@ class Paddle(Circle):
     # Update the location from a mouse position
     def start_move(self, new_pos, arena, puck):
         (m_x, m_y) = new_pos
-        self.new_location = Vector(pix_to_mm(m_x), pix_to_mm(m_y)) \
-                            - Vector(arena.border_width, arena.border_width)
-        self.velocity = clock_freq * (self.new_location - self.location) 
+        in_location = Vector(m_x, m_y)
 
-        if not self.ghost:
-            # The paddle can't collide with the puck while its ghost, in order
-            # to let the puck move away
+        if in_location != self.location:
+            self.new_location = in_location \
+                                - Vector(arena.border_width, arena.border_width)
+            self.velocity = clock_freq * (self.new_location - self.location) 
 
-            # See if the paddle crashes into the puck
-            puck_coll_time = puck.coll_time(self)
+            if not self.ghost:
+                # The paddle can't collide with the puck while its ghost, in order
+                # to let the puck move away
 
-            if puck_coll_time != None and puck_coll_time < 1/clock_freq:
+                # See if the paddle crashes into the puck
+                puck_coll_time = puck.coll_time(self)
 
-                # The paddle will collide with the puck
-                self.location = self.location + puck_coll_time * self.velocity
+                if puck_coll_time != None and puck_coll_time < 1/clock_freq:
 
-                if self.invalid_loc(arena):
-                    self.ghost = True
+                    # The paddle will collide with the puck
+                    self.location = self.location + puck_coll_time * self.velocity
+
+                    if self.invalid_loc(arena):
+                        self.ghost = True
+                    else:
+                        puck.velocity = self.collide_velocity(puck, puck.location)
+
                 else:
-                    puck.velocity = self.collide_velocity(puck, puck.location)
-
+                    self.location = self.new_location
             else:
                 self.location = self.new_location
-        else:
-            self.location = self.new_location
 
-        if self.invalid_loc(arena):
-            self.ghost = True
+            if self.invalid_loc(arena):
+                self.ghost = True
 
     def end_move(self, arena, puck):
         self.location = self.new_location
@@ -232,8 +239,8 @@ class Game:
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
         paddle_color = (196, 0, 0)
-        self.paddle_1 = Paddle(Vector(300, 300), 70, paddle_color, False)
-        self.paddle_2 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
+        self.paddle_2 = Paddle(Vector(300, 300), 70, paddle_color, False)
+        self.paddle_1 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
         self.clock = pygame.time.Clock()
         
         # (left score, right score)
@@ -294,10 +301,10 @@ class Game:
                             Wall_Horz_Down_Inf(0),
                             # Bottom wall
                             Wall_Horz_Up_Inf(self.arena.y_len),
-                            self.paddle_1,
-                            self.paddle_2] 
+                            self.paddle_2,
+                            self.paddle_1] 
         # Objects that must be drawn every cycle 
-        self.drawables = [self.puck, self.paddle_1, self.paddle_2]
+        self.drawables = [self.puck, self.paddle_2, self.paddle_1]
 
     def draw(self):
         self.arena.screen.fill((0, 0, 0))
@@ -332,66 +339,88 @@ def mm_to_pix(mm):
 def pix_to_mm(pix):
     return pix / pix_per_mm
 
+# Input queue
+# Series of paddle location location updates
+# (Paddle number [1 or 2], paddle x, paddle y)
+            #data = fifo.read(4)
+            #print(data)
+            #print(type(data))
+            #num = int.from_bytes(data, byteorder="little")
+            #n = len(data);
+            #print("data length is " + str(n));
+            #print("Received: " + str(num));
+            #print(a)
+
+
+# Run by separate thread to update to update location
+def paddle_locator(input_queue):
+    #with open(FIFO, mode='rb') as fifo:
+    while True:
+        input_queue.put((2,100,util.kin_2_queue_dat(input())))
+
 def game_run():
     
     game = Game()
 
     game_running = True
 
-    with open(FIFO, mode='rb') as fifo:
-        while game_running:
-            data = fifo.read(4)
-            print(data)
-            print(type(data))
-            num = int.from_bytes(data, byteorder="little")
-            n = len(data);
-            print("data length is " + str(n));
-            print("Received: " + str(num));
+    input_queue = queue.Queue(maxsize=0) 
+    input_thread = threading.Thread(target=paddle_locator, args=(input_queue,))
+    input_thread.daemon = True
+    input_thread.start()
 
-            game.paddle_1.velocity = Vector(0,0)
+    while game_running:
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        game.paddle_2.velocity = Vector(0,0)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
                     game_running = False
-                elif event.type == pygame.MOUSEMOTION:
-                    game.paddle_1.start_move(event.pos, game.arena, game.puck) 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_running = False
-                    if event.key == pygame.K_r:
-                        # Reset game 
-                        game.reset()
-
-            game.puck.move(game.collidables)
-
-            game.paddle_1.end_move(game.arena, game.puck)
-
-            game.draw()
-
-            game.clock.tick(clock_freq)
-            pygame.display.flip()
-
-            # Compute goals
-            goal = game.puck.goal(game.arena)
-            if goal:
-                # Goal scored
-                game.update_score(goal)
-                print(game.score)
-
-                winner = game.check_win()
-
-                # Wait and reset puck
-                for i in range(0, 30):
-                    game.clock.tick(clock_freq)
-
-                if winner:
-                    if winner < 0:
-                        print("Left wins!!!")
-                    elif winner > 0: 
-                        print("Right wins!!!")
+                if event.key == pygame.K_r:
+                    # Reset game 
                     game.reset()
-                else:
-                    game.puck.reset()
+
+        (p2_x, p2_y) = (game.paddle_2.location.x, 
+                        game.paddle_2.location.y)
+        # Process paddle position updates 
+        while(not input_queue.empty()):
+            (paddle_num, new_x, new_y) = input_queue.get()
+            (p2_x, p2_y) = (new_x, new_y)
+        game.paddle_2.start_move((p2_x, p2_y), game.arena, game.puck) 
+
+        game.puck.move(game.collidables)
+
+        game.paddle_2.end_move(game.arena, game.puck)
+
+        game.draw()
+
+        game.clock.tick(clock_freq)
+        pygame.display.flip()
+
+        # Compute goals
+        goal = game.puck.goal(game.arena)
+        if goal:
+            # Goal scored
+            game.update_score(goal)
+            print(game.score)
+
+            winner = game.check_win()
+
+            # Wait and reset puck
+            for i in range(0, 30):
+                game.clock.tick(clock_freq)
+
+            if winner:
+                if winner < 0:
+                    print("Left wins!!!")
+                elif winner > 0: 
+                    print("Right wins!!!")
+                game.reset()
+            else:
+                game.puck.reset()
 
 clock = pygame.time.Clock()
 
