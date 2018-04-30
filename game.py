@@ -239,8 +239,10 @@ class Game:
         self.puck = Puck(Vector(self.arena.x_len/2, self.arena.y_len/2), 
                          Vector(0,0), 50)
         paddle_color = (196, 0, 0)
-        self.paddle_2 = Paddle(Vector(300, 300), 70, paddle_color, False)
-        self.paddle_1 = Paddle(Vector(200, self.arena.y_len / 2), 70, paddle_color, True)
+        self.paddle_2 = Paddle(Vector(self.arena.x_len * .75, self.arena.y_len / 2), 
+                        70, paddle_color, False)
+        self.paddle_1 = Paddle(Vector(self.arena.x_len * .25, self.arena.y_len / 2), 
+                        70, paddle_color, True)
         self.clock = pygame.time.Clock()
         
         # (left score, right score)
@@ -359,6 +361,7 @@ def game_run():
 
     while game_running:
 
+        game.paddle_1.velocity = Vector(0,0)
         game.paddle_2.velocity = Vector(0,0)
 
         for event in pygame.event.get():
@@ -371,16 +374,26 @@ def game_run():
                     # Reset game 
                     game.reset()
 
+        (p1_x, p1_y) = (game.paddle_1.location.x, 
+                        game.paddle_1.location.y)
         (p2_x, p2_y) = (game.paddle_2.location.x, 
                         game.paddle_2.location.y)
         # Process paddle position updates 
         while(not input_queue.empty()):
             (paddle_num, new_x, new_y) = input_queue.get()
-            (p2_x, p2_y) = (new_x, new_y)
+            if paddle_num == 1:
+                (p1_x, p1_y) = (new_x, new_y)
+            elif paddle_num == 2:
+                (p2_x, p2_y) = (new_x, new_y)
+            else:
+                print("Invalid paddle number")
+
+        game.paddle_1.start_move((p2_x, p2_y), game.arena, game.puck) 
         game.paddle_2.start_move((p2_x, p2_y), game.arena, game.puck) 
 
         game.puck.move(game.collidables)
 
+        game.paddle_1.end_move(game.arena, game.puck)
         game.paddle_2.end_move(game.arena, game.puck)
 
         game.draw()
